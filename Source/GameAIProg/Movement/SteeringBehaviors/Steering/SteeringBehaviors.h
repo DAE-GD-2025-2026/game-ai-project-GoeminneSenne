@@ -26,14 +26,35 @@ protected:
 };
 
 // Your own SteeringBehaviors should follow here...
+//SEEK
+//*********
 class Seek : public ISteeringBehavior
 {
 public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
 };
 
+//FLEE
+//*********
 class Flee : public Seek
 {
 public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
 };
+
+//ARRIVE
+//*********
+class Arrive : public Seek
+{
+public:
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
+	
+	void SetSlowRadius(float slowRadius){SlowRadius = slowRadius;}
+	void SetTargetRadius(float targetRadius){TargetRadius = targetRadius;}
+	
+protected:
+	float OgMaxSpeed = 0.f; //TODO; Constructor which gets agent's speed
+	float SlowRadius = 500.f;
+	float TargetRadius = 100.f;
+};
+

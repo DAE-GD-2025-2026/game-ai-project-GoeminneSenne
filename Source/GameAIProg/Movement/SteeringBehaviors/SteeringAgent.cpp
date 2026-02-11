@@ -34,7 +34,10 @@ void ASteeringAgent::Tick(float DeltaTime)
 		//TODO implement angular velocity handling
 		
 		//Draw Debug Lines
-		DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition()+GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
+		if (GetDebugRenderingEnabled())
+		{
+			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition()+GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
+		}
 	}
 }
 
