@@ -32,6 +32,7 @@ void ASteeringAgent::Tick(float DeltaTime)
 		AddMovementInput(FVector{output.LinearVelocity, 0.f});
 		
 		//TODO implement angular velocity handling
+		AddActorLocalRotation(FRotator{0.f, output.AngularVelocity, 0.f});
 		
 		//Draw Debug Lines
 		if (GetDebugRenderingEnabled())

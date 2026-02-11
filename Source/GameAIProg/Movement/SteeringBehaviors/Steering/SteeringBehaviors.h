@@ -58,3 +58,10 @@ protected:
 	float TargetRadius = 100.f;
 };
 
+//FACE
+//*********
+class Face : public ISteeringBehavior
+{
+public:
+	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
+};
