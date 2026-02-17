@@ -37,7 +37,9 @@ void ASteeringAgent::Tick(float DeltaTime)
 		//Draw Debug Lines
 		if (GetDebugRenderingEnabled())
 		{
-			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition()+GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
+					
+			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition() + GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
+			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorForwardVector() * 100.F, 100.f, FColor::Purple);
 		}
 	}
 }
