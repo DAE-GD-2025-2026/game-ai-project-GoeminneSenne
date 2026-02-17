@@ -39,7 +39,7 @@ void ASteeringAgent::Tick(float DeltaTime)
 		{
 					
 			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition() + GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
-			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorForwardVector() * 100.F, 100.f, FColor::Purple);
+			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorForwardVector() * 100.f, 100.f, FColor::Purple);
 		}
 	}
 }

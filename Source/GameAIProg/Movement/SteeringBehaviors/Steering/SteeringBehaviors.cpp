@@ -79,3 +79,21 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	Steering.AngularVelocity = Angle * RotationSpeed * DeltaT;
 	return Steering;
 }
+
+SteeringOutput Pursuit::CalculateSteering(float deltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput SeekSteering = Seek::CalculateSteering(deltaT, Agent);
+	
+	const float Distance = SeekSteering.LinearVelocity.Length();
+	const float AgentSpeed = Agent.GetLinearVelocity().Length();
+	
+	const float ReachTime = Distance / AgentSpeed;
+	
+	const FVector2D PredictedPosition = Target.Position + Target.LinearVelocity * ReachTime;
+	
+	DrawDebugDirectionalArrow(Agent.GetWorld(), FVector(Agent.GetPosition(), 0.f), FVector(PredictedPosition, 0.f), 100, FColor::Red);
+	SteeringOutput Steering{};
+	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	
+	return Steering;
+}
