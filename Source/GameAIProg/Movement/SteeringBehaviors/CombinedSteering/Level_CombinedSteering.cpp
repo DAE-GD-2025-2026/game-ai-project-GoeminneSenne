@@ -144,7 +144,16 @@ bool ALevel_CombinedSteering::AddDrunkAgent()
 		ImGuiAgent.SelectedBehavior = 0;
 		ImGuiAgent.SelectedTarget = -1;
 		
-		SetAgentBehavior(ImGuiAgent);
+		//SetAgentBehavior(ImGuiAgent);
+		std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors = {};
+		//TODO: memory leaks fixen van new Behaviors
+		WeightedBehaviors.emplace_back(new Seek, 0.5f);
+		WeightedBehaviors.emplace_back(new Wander, 0.5f);
+		
+		ImGuiAgent.Behavior = std::make_unique<BlendedSteering>(WeightedBehaviors);
+		UpdateTarget(ImGuiAgent);
+		ImGuiAgent.Agent->SetSteeringBehavior(ImGuiAgent.Behavior.get());
+		
 		SteeringAgents.push_back(std::move(ImGuiAgent));
 		
 		RefreshTargetLabels();
