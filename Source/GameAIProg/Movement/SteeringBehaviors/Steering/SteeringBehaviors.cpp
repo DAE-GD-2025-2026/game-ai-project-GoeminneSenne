@@ -85,15 +85,26 @@ SteeringOutput Pursuit::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 	SteeringOutput SeekSteering = Seek::CalculateSteering(deltaT, Agent);
 	
 	const float Distance = SeekSteering.LinearVelocity.Length();
-	const float AgentSpeed = Agent.GetLinearVelocity().Length();
-	
-	const float ReachTime = Distance / AgentSpeed;
+	const float MaxAgentSpeed = Agent.GetMaxLinearSpeed();
+		
+	float ReachTime = Distance / MaxAgentSpeed;
+	constexpr float MaxReachTime = 4.f;
+	ReachTime = FMath::Clamp(ReachTime, 0.f, MaxReachTime);
 	
 	const FVector2D PredictedPosition = Target.Position + Target.LinearVelocity * ReachTime;
 	
+	DrawDebugPoint(Agent.GetWorld(), FVector(PredictedPosition, 0.f), 10, FColor::Red);
 	DrawDebugDirectionalArrow(Agent.GetWorld(), FVector(Agent.GetPosition(), 0.f), FVector(PredictedPosition, 0.f), 100, FColor::Red);
 	SteeringOutput Steering{};
 	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	
+	return Steering;
+}
+
+SteeringOutput Evade::CalculateSteering(float deltaT, ASteeringAgent& Agent)
+{
+	SteeringOutput Steering = Pursuit::CalculateSteering(deltaT, Agent);
+	Steering.LinearVelocity *= -1;
 	
 	return Steering;
 }
