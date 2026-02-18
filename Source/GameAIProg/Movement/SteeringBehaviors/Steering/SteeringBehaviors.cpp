@@ -3,7 +3,7 @@
 
 //SEEK
 //*******
-// TODO: Do the Week01 assignment :^)
+//TODO: Normalize outputs
 SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
