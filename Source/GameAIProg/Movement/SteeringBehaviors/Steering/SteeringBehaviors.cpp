@@ -65,15 +65,12 @@ SteeringOutput Face::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	
 	FVector2D TargetDir = Target.Position - Agent.GetPosition();
 	TargetDir.Normalize();
-	//float Dot = FVector::DotProduct(FVector(TargetDir, 0.f).GetSafeNormal(), Agent.GetActorForwardVector());
-	//float Angle = FMath::RadiansToDegrees(FMath::Acos(Dot))
 	FVector Forward = Agent.GetActorForwardVector();
 	
 	float Angle = FMath::FindDeltaAngleDegrees(
 		Forward.Rotation().Yaw,
 		FVector(TargetDir, 0.f).Rotation().Yaw
 		);
-	
 	
 	constexpr float RotationSpeed = 2.f;
 	Steering.AngularVelocity = Angle * RotationSpeed * DeltaT;

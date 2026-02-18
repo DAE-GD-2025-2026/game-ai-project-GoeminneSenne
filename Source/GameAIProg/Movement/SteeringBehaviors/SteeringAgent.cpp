@@ -2,6 +2,8 @@
 
 #include "SteeringAgent.h"
 
+#include "AIController.h"
+
 
 // Sets default values
 ASteeringAgent::ASteeringAgent()
@@ -31,15 +33,33 @@ void ASteeringAgent::Tick(float DeltaTime)
 		SteeringOutput output = SteeringBehavior->CalculateSteering(DeltaTime, *this);
 		AddMovementInput(FVector{output.LinearVelocity, 0.f});
 		
-		//TODO implement angular velocity handling
-		AddActorLocalRotation(FRotator{0.f, output.AngularVelocity, 0.f});
+		if (!IsAutoOrienting())
+		{
+			if (AAIController* AIController = Cast<AAIController>(GetController()))
+			{
+				float const DeltaYaw = FMath::Clamp(output.AngularVelocity, -1.f, 1.f)
+				 * GetMaxAngularSpeed() * DeltaTime;
+				
+				FRotator const CurrentRotation{GetActorForwardVector().ToOrientationRotator()};
+				FRotator const DeltaRotation{0, DeltaYaw, 0};
+				FRotator const DesiredRotation{CurrentRotation + DeltaRotation};
+				
+				//We only care about yaw
+				if (!FMath::IsNearlyEqual(CurrentRotation.Yaw, DesiredRotation.Yaw))
+				{
+					AIController->SetControlRotation(DesiredRotation);
+					FaceRotation(DesiredRotation);
+				}
+			}
+		}
 		
 		//Draw Debug Lines
 		if (GetDebugRenderingEnabled())
 		{
-					
 			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition() + GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
 			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorForwardVector() * 100.f, 100.f, FColor::Purple);
+		
+			//TODO: Arc tussen forward & linear velocity of gewoon loodrecht
 		}
 	}
 }
