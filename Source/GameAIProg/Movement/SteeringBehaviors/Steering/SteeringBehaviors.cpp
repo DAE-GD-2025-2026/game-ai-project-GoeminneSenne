@@ -108,3 +108,23 @@ SteeringOutput Evade::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 	
 	return Steering;
 }
+
+SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
+{
+	FVector2D CircleCenter = Agent.GetPosition() + FVector2D(Agent.GetActorForwardVector().GetSafeNormal2D()) * m_OffsetDistance;
+
+	DrawDebugPoint(Agent.GetWorld(), FVector(CircleCenter, 0.f), 10, FColor::Red);
+	DrawDebugCircle(Agent.GetWorld(), FVector(CircleCenter, 0.f), m_Radius, 16, FColor::Blue,
+	false, -1, 0, 0, FVector(0,1, 0), FVector(1,0,0));
+
+	//TODO; MaxAngleChange implementen
+	m_WanderAngle = FMath::RandRange(0.f, 2*3.14f);
+	FVector2D AnglePosition = CircleCenter;
+	AnglePosition.X += m_Radius * FMath::Cos(m_WanderAngle);
+	AnglePosition.Y += m_Radius * FMath::Sin(m_WanderAngle);
+	
+	DrawDebugPoint(Agent.GetWorld(), FVector(AnglePosition, 0.f), 15, FColor::Green);
+	
+	SetTarget(FTargetData(AnglePosition));
+	return Seek::CalculateSteering(DeltaT, Agent);
+}
