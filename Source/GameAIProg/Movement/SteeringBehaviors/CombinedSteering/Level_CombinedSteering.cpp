@@ -18,14 +18,24 @@ void ALevel_CombinedSteering::BeginPlay()
 	
 	pSeek = std::make_unique<Seek>();
 	pWander = std::make_unique<Wander>();
+	pEvade = std::make_unique<Evade>();
 	
+	//Create DrunkAgent behavior
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.emplace_back(pSeek.get(), 0.5f);
 	WeightedBehaviors.emplace_back(pWander.get(), 0.5f);
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
+	//Create Drunk Agent
 	pDrunkAgent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
 	pDrunkAgent->SetSteeringBehavior(pBlendedSteering.get());
+
+	//Create EvadingAgent PrioritySteering behavior
+	pPrioritySteering = std::make_unique<PrioritySteering>(std::vector<ISteeringBehavior*>{pEvade.get(), pWander.get()});
+	//Create EvadingAgent
+	pEvadingAgent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
+	pEvadingAgent->SetSteeringBehavior(pPrioritySteering.get()); //TODO: evade radius toevoegen aan behavior
+	
 }
 
 void ALevel_CombinedSteering::BeginDestroy()
