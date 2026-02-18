@@ -3,6 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include <memory>
+#include <string>
+
 #include "CombinedSteeringBehaviors.h"
 #include "GameAIProg/Shared/Level_Base.h"
 #include "GameAIProg/Movement/SteeringBehaviors/Steering/SteeringBehaviors.h"
@@ -32,5 +35,39 @@ private:
 	bool UseMouseTarget = false;
 	bool CanDebugRender = false;
 
+	enum class BehaviorTypes
+	{
+		Seek,
+		Wander,
+		Flee,
+		Arrive,
+		Evade,
+		Pursuit,
+		Face,
+
+		// @ End
+		Count
+	};
+
+	struct ImGui_Agent final
+	{
+		ASteeringAgent* Agent{nullptr};
+		std::unique_ptr<ISteeringBehavior> Behavior{nullptr};
+		int SelectedBehavior{static_cast<int>(BehaviorTypes::Seek)};
+		int SelectedTarget = -1;
+	};
 	
+	std::vector<ImGui_Agent> SteeringAgents{};
+	std::vector<std::string> TargetLabels{};
+	
+	int AgentIndexToRemove = -1;
+	
+	bool AddAgent(BehaviorTypes BehaviorType = BehaviorTypes::Wander, bool AutoOrient = true);
+	bool AddDrunkAgent();
+	void RemoveAgent(unsigned int Index);
+	void SetAgentBehavior(ImGui_Agent& Agent);
+
+	void RefreshTargetLabels();
+	void UpdateTarget(ImGui_Agent& Agent);
+	void RefreshAgentTargets(unsigned int IndexRemoved);
 };
