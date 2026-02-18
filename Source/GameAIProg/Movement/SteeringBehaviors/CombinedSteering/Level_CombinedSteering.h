@@ -40,4 +40,6 @@ private:
 	std::unique_ptr<BlendedSteering> pBlendedSteering{};
 	
 	ASteeringAgent* pDrunkAgent{};
+	
+	void UpdateTarget_Seek();
 };

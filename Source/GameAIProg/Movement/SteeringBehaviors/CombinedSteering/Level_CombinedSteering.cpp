@@ -25,7 +25,7 @@ void ALevel_CombinedSteering::BeginPlay()
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
 	pDrunkAgent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
-	pDrunkAgent->SetSteeringBehavior(pWander.get());
+	pDrunkAgent->SetSteeringBehavior(pBlendedSteering.get());
 }
 
 void ALevel_CombinedSteering::BeginDestroy()
@@ -38,7 +38,7 @@ void ALevel_CombinedSteering::BeginDestroy()
 void ALevel_CombinedSteering::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 #pragma region UI
 	//UI
 	{
@@ -96,22 +96,26 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 		ImGui::Spacing();
 
 
-		// ImGuiHelpers::ImGuiSliderFloatWithSetter("Seek",
-		// 	pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
-		// 	[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight = InVal; }, "%.2f");
-		//
-		// ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
-		// pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight, 0.f, 1.f,
-		// [this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight = InVal; }, "%.2f");
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Seek",
+			pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
+			[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight = InVal; }, "%.2f");
+		
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
+		pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight, 0.f, 1.f,
+		[this](float InVal) { pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight = InVal; }, "%.2f");
 	
 		//End
 		ImGui::End();
 	}
 #pragma endregion
-
 	
 	// Combined Steering Update
- // TODO: implement handling mouse click input for seek
- // TODO: implement Make sure to also evade the wanderer
+	UpdateTarget_Seek();
+	
+	// TODO: implement Make sure to also evade the wanderer
 }
 
+void ALevel_CombinedSteering::UpdateTarget_Seek()
+{
+	pSeek->SetTarget(MouseTarget);
+}
