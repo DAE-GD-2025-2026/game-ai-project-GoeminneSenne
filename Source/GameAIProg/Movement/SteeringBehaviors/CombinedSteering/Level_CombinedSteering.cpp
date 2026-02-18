@@ -16,8 +16,14 @@ void ALevel_CombinedSteering::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	AddDrunkAgent();
-	SteeringAgents[0].Agent->SetDebugRenderingEnabled(true);
+	pSeek = std::make_unique<Seek>();
+	pWander = std::make_unique<Wander>();
+	
+	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
+	WeightedBehaviors.emplace_back(pSeek.get(), 0.5f);
+	WeightedBehaviors.emplace_back(pWander.get(), 0.5f);
+	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
+	
 }
 
 void ALevel_CombinedSteering::BeginDestroy()
@@ -132,34 +138,6 @@ bool ALevel_CombinedSteering::AddAgent(BehaviorTypes BehaviorType, bool AutoOrie
 		return true;
 	}
 
-	return false;
-}
-
-bool ALevel_CombinedSteering::AddDrunkAgent()
-{
-	ImGui_Agent ImGuiAgent = {};
-	ImGuiAgent.Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
-	if (IsValid(ImGuiAgent.Agent))
-	{
-		ImGuiAgent.SelectedBehavior = 0;
-		ImGuiAgent.SelectedTarget = -1;
-		
-		//SetAgentBehavior(ImGuiAgent);
-		std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors = {};
-		//TODO: memory leaks fixen van new Behaviors
-		WeightedBehaviors.emplace_back(new Seek, 0.5f);
-		WeightedBehaviors.emplace_back(new Wander, 0.5f);
-		
-		ImGuiAgent.Behavior = std::make_unique<BlendedSteering>(WeightedBehaviors);
-		UpdateTarget(ImGuiAgent);
-		ImGuiAgent.Agent->SetSteeringBehavior(ImGuiAgent.Behavior.get());
-		
-		SteeringAgents.push_back(std::move(ImGuiAgent));
-		
-		RefreshTargetLabels();
-		return true;
-	}
-	
 	return false;
 }
 

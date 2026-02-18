@@ -60,10 +60,13 @@ private:
 	std::vector<ImGui_Agent> SteeringAgents{};
 	std::vector<std::string> TargetLabels{};
 	
+	std::unique_ptr<Seek> pSeek{};
+	std::unique_ptr<Wander> pWander{};
+	std::unique_ptr<BlendedSteering> pBlendedSteering{};
+	
 	int AgentIndexToRemove = -1;
 	
 	bool AddAgent(BehaviorTypes BehaviorType = BehaviorTypes::Wander, bool AutoOrient = true);
-	bool AddDrunkAgent();
 	void RemoveAgent(unsigned int Index);
 	void SetAgentBehavior(ImGui_Agent& Agent);
 
