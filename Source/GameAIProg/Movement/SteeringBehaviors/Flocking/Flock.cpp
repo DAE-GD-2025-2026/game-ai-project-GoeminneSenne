@@ -17,6 +17,11 @@ Flock::Flock(
 	Agents.SetNum(FlockSize);
 
  // TODO: initialize the flock and the memory pool
+	
+	/*
+	 *FActor.TickEnabled(false)!
+	 * Niet tick enabled anders gaan alle agents de laatste neighbours gebruiken
+	 */
 }
 
 Flock::~Flock()
