@@ -93,15 +93,24 @@ SteeringOutput Pursuit::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 	DrawDebugPoint(Agent.GetWorld(), FVector(PredictedPosition, 0.f), 10, FColor::Red);
 	DrawDebugDirectionalArrow(Agent.GetWorld(), FVector(Agent.GetPosition(), 0.f), FVector(PredictedPosition, 0.f), 100, FColor::Red);
 	SteeringOutput Steering{};
-	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition();
+	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition(); //TODO: Target veranderen & opnieuw berekenen met Seek in de plaats
 	
 	return Steering;
 }
 
 SteeringOutput Evade::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 {
-	SteeringOutput Steering = Pursuit::CalculateSteering(deltaT, Agent);
-	Steering.LinearVelocity *= -1;
+	SteeringOutput Steering = {};
+	
+	if (FVector2D::Distance(Agent.GetPosition(), Target.Position) > EvadeRadius)
+	{
+		Steering.IsValid = false;
+	}
+	else
+	{
+		Steering = Pursuit::CalculateSteering(deltaT, Agent);
+		Steering.LinearVelocity *= -1;
+	}
 	
 	return Steering;
 }

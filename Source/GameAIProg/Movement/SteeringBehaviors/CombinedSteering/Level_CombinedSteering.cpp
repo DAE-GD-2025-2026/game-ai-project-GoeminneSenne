@@ -34,7 +34,7 @@ void ALevel_CombinedSteering::BeginPlay()
 	pPrioritySteering = std::make_unique<PrioritySteering>(std::vector<ISteeringBehavior*>{pEvade.get(), pWander.get()});
 	//Create EvadingAgent
 	pEvadingAgent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, FVector{0,0,90}, FRotator::ZeroRotator);
-	pEvadingAgent->SetSteeringBehavior(pPrioritySteering.get()); //TODO: evade radius toevoegen aan behavior
+	pEvadingAgent->SetSteeringBehavior(pPrioritySteering.get());
 	
 }
 
@@ -121,6 +121,7 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	
 	// Combined Steering Update
 	UpdateTarget_Seek();
+	UpdateTarget_Evade();
 	
 	// TODO: implement Make sure to also evade the wanderer
 }
@@ -128,4 +129,15 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 void ALevel_CombinedSteering::UpdateTarget_Seek()
 {
 	pSeek->SetTarget(MouseTarget);
+}
+
+void ALevel_CombinedSteering::UpdateTarget_Evade()
+{
+	FTargetData Target;
+	Target.Position = pDrunkAgent->GetPosition();
+	Target.Orientation = pDrunkAgent->GetRotation();
+	Target.LinearVelocity = pDrunkAgent->GetLinearVelocity();
+	Target.AngularVelocity = pDrunkAgent->GetAngularVelocity();
+	
+	pEvade->SetTarget(Target);
 }

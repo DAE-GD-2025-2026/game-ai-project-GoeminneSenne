@@ -80,6 +80,9 @@ class Evade : public Pursuit
 {
 public:
 	virtual SteeringOutput CalculateSteering(float deltaT, ASteeringAgent & Agent) override;
+	
+protected:
+	float EvadeRadius = 600.f;
 };
 
 //WANDER
