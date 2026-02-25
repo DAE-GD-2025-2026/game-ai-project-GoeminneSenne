@@ -36,6 +36,7 @@ Flock::Flock(
 		
 		if (pAgent)
 		{
+			pAgent->SetActorTickEnabled(false);
 			Agents.Add(pAgent);
 		}
 	}
