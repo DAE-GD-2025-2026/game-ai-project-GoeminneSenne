@@ -42,13 +42,13 @@ Flock::Flock(
 	
 	UE_LOG(LogTemp, Warning, TEXT("Array size: %d"), Agents.Num());
 
+	////////////////
+	///Steering Behaviors
+	pSeekBehavior = std::make_unique<Seek>();
+	
 	
  // TODO: initialize the flock and the memory pool
 
-	/*
-	 *FActor.TickEnabled(false)!
-	 * Niet tick enabled anders gaan alle agents de laatste neighbours gebruiken
-	 */
 }
 
 Flock::~Flock()

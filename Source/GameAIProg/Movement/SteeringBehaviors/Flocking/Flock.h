@@ -68,7 +68,7 @@ private:
 	//std::unique_ptr<Separation> pSeparationBehavior{};
 	//std::unique_ptr<Cohesion> pCohesionBehavior{};
 	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
-	//std::unique_ptr<Seek> pSeekBehavior{};
+	std::unique_ptr<Seek> pSeekBehavior{};
 	//std::unique_ptr<Wander> pWanderBehavior{};
 	//std::unique_ptr<Evade> pEvadeBehavior{};
 	

@@ -8,7 +8,13 @@
 //COHESION (FLOCKING)
 SteeringOutput Cohesion::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 {
-	return SteeringOutput{};
+	FVector2D TargetPos = pFlock->GetAverageNeighborPos();
+	
+	FTargetData NewTarget{TargetPos};
+	SetTarget(NewTarget);
+	SteeringOutput Output = Seek::CalculateSteering(deltaT, pAgent);
+	
+	return Output;
 }
 
 //*********************
