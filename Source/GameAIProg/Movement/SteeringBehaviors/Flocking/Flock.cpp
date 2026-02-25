@@ -17,8 +17,7 @@ Flock::Flock(
 	, pAgentToEvade{pAgentToEvade}
 {
 	Agents.SetNum(FlockSize);
-
-	UE_LOG(LogTemp, Warning, TEXT("Array size: %d"), Agents.Num());
+	Neighbors.SetNum(MaxNeighbors);
 	
 	FActorSpawnParameters SpawnParams{};
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
@@ -37,10 +36,11 @@ Flock::Flock(
 		if (pAgent)
 		{
 			pAgent->SetActorTickEnabled(false);
-			Agents.Add(pAgent);
+			Agents[idx] = pAgent;
 		}
 	}
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("Array size: %d"), Agents.Num());
 
 	
  // TODO: initialize the flock and the memory pool
@@ -63,11 +63,20 @@ void Flock::Tick(float DeltaTime)
   // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
   // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
   // TODO: trim the agent to the world
+	
+	for (auto pAgent : Agents)
+	{
+		//RegisterNeighbors(pAgent);
+	}
 }
 
 void Flock::RenderDebug()
 {
  // TODO: Render all the agents in the flock
+	if (DebugRenderNeighborhood)
+	{
+		RenderNeighborhood();
+	}
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -124,12 +133,46 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 void Flock::RenderNeighborhood()
 {
  // TODO: Debugrender the neighbors for the first agent in the flock
+	//Neighborhood Radius
+	DrawDebugCircle(pWorld, FVector(Agents[0]->GetPosition(),0.f), NeighborhoodRadius, 16, FColor::Blue, false, -1, 0, 0, 
+		FVector(0,1,0), FVector(1,0,0));
+
+	//Mark all included neighbors
+	//TODO kleur veranderen van agents ipv punt erop te tekenen
+	RegisterNeighbors(Agents[0]);
+	for (int idx = 0; idx < NrOfNeighbors; ++idx)
+	{
+		DrawDebugPoint(pWorld, FVector(Neighbors[idx]->GetPosition(), 20.f), 30.f, FColor::Green);
+	}
 }
 
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
- // TODO: Implement
+	NrOfNeighbors = 0;
+	
+	for (auto* other : Agents)
+	{
+		//agent is not included in its own neighborhood
+		if (other == pAgent) continue;
+		
+		const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
+		if (Distance < NeighborhoodRadius)
+		{
+			Neighbors[NrOfNeighbors] = other;
+			++NrOfNeighbors;
+			
+			//Stop checking neighbors if memory pool is full
+			if (NrOfNeighbors >= MaxNeighbors)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Neighbors: %d"), NrOfNeighbors);
+				return;
+			}
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Neighbors: %d"), NrOfNeighbors);
+
 }
 #endif
 

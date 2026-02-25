@@ -60,6 +60,7 @@ private:
 	
 	float NeighborhoodRadius{200.f};
 	int NrOfNeighbors{0};
+	const int MaxNeighbors{50};
 
 	ASteeringAgent* pAgentToEvade{nullptr};
 	
