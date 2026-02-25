@@ -18,12 +18,12 @@ private:
 
 //SEPARATION - FLOCKING
 //*********************
-class Seperation final : public Flee
+class Separation final : public Flee
 {
 public:
-	Seperation(Flock* const pFlock) : pFlock(pFlock) {};
+	Separation(Flock* const pFlock) : pFlock(pFlock) {};
 	
-	virtual CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
+	virtual SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
 	
 private:
 	Flock* pFlock = nullptr;

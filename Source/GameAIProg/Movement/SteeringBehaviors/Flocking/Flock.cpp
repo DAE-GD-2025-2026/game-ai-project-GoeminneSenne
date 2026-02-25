@@ -47,6 +47,7 @@ Flock::Flock(
 	///Steering Behaviors
 	
 	//std::unique_ptr<Separation> pSeparationBehavior{};
+	pSeparationBehavior = std::make_unique<Separation>(this);
 	pCohesionBehavior = std::make_unique<Cohesion>(this);
 	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
 	pSeekBehavior = std::make_unique<Seek>();
@@ -56,7 +57,7 @@ Flock::Flock(
 	//TODO: TEMP 
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pCohesionBehavior.get());
+		pAgent->SetSteeringBehavior(pSeparationBehavior.get());
 	}
 	
 	
