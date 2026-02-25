@@ -2,6 +2,7 @@
 #include "Flock.h"
 #include "../SteeringAgent.h"
 #include "../SteeringHelpers.h"
+#include "Misc/OutputDeviceStdOut.h"
 
 
 //*******************
@@ -24,6 +25,8 @@ SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& pAgen
 	SteeringOutput Output{};
 	const auto& Neighbors = pFlock->GetNeighbors();
 	
+	//FVector2D OutputVelocity{FVector2D::ZeroVector};
+	
 	for (int Idx = 0; Idx < pFlock->GetNrOfNeighbors(); ++Idx)
 	{
 		ASteeringAgent* Neighbor = Neighbors[Idx];
@@ -33,11 +36,31 @@ SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& pAgen
 		
 		SetTarget(NewTarget);
 		
-		float invDistance = 1.f / FVector2D::Distance(Neighbor->GetPosition(), pAgent.GetPosition());
+		const float invDistance = 1.f / FVector2D::Distance(Neighbor->GetPosition(), pAgent.GetPosition());
 		Output += Flee::CalculateSteering(deltaT, pAgent) * invDistance;
+	
+		//TODO: check of je dit zonder flee wil doen (zoals getoond)
+		//FVector2D PushForce = pAgent.GetPosition() - Neighbors[Idx]->GetPosition();
+		
+		
+		//Inverse proportional = normalized / distance -> / distance²
+		//PushForce /= PushForce.SquaredLength();
+		//
+		//OutputVelocity += PushForce;
 	}
 	
-	return Flee::CalculateSteering(deltaT, pAgent);
+	//OutputVelocity.Normalize();
+	//Output.LinearVelocity = OutputVelocity;
+	return Output;
+	
+}
+
+SteeringOutput Alignment::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
+{
+	SteeringOutput Output{};
+	Output.LinearVelocity = pFlock->GetAverageNeighborVelocity();
+	
+	return Output;
 }
 
 //*********************

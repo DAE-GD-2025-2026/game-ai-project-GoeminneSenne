@@ -31,3 +31,13 @@ private:
 
 //VELOCITY MATCH - FLOCKING
 //************************
+class Alignment final : public ISteeringBehavior
+{
+public:
+	Alignment(Flock* const pFlock) : pFlock(pFlock) {};
+	
+	virtual SteeringOutput CalculateSteering(float deltaT, ASteeringAgent& pAgent) override;
+	
+private:
+	Flock* pFlock = nullptr;
+};

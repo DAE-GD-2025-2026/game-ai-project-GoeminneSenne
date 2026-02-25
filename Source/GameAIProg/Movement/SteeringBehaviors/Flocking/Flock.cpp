@@ -46,23 +46,27 @@ Flock::Flock(
 	////////////////
 	///Steering Behaviors
 	
-	//std::unique_ptr<Separation> pSeparationBehavior{};
 	pSeparationBehavior = std::make_unique<Separation>(this);
 	pCohesionBehavior = std::make_unique<Cohesion>(this);
-	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
+	pAlignmentBehavior = std::make_unique<Alignment>(this);
 	pSeekBehavior = std::make_unique<Seek>();
-	//std::unique_ptr<Wander> pWanderBehavior{};
-	//std::unique_ptr<Evade> pEvadeBehavior{};
+	pWanderBehavior = std::make_unique<Wander>();
+	pEvadeBehavior = std::make_unique<Evade>();
 	
-	//TODO: TEMP 
+	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
+	WeightedBehaviors.reserve(5);
+	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.5f);
+	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.03f);
+	//WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.5f);
+	//WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.5f);
+	//WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.5f);
+	
+	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
+	
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pSeparationBehavior.get());
+		pAgent->SetSteeringBehavior(pBlendedSteering.get());
 	}
-	
-	
- // TODO: initialize the flock and the memory pool
-
 }
 
 Flock::~Flock()
@@ -150,8 +154,9 @@ void Flock::RenderNeighborhood()
 {
 	//Neighborhood Radius
 	DrawDebugCircle(pWorld, FVector(Agents[0]->GetPosition(),0.f), NeighborhoodRadius, 16, FColor::Blue, false, -1, 0, 0, 
-		FVector(0,1,0), FVector(1,0,0));
-
+	FVector(0,1,0), FVector(1,0,0));
+		//TODO: draw Circle with matrix
+	
 	//Mark all included neighbors
 	//TODO kleur veranderen van agents ipv punt erop te tekenen
 	RegisterNeighbors(Agents[0]);
@@ -179,7 +184,7 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 		if (other == pAgent) continue;
 		
 		const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
-		if (Distance < NeighborhoodRadius)
+		if (Distance < NeighborhoodRadius) //TODO SquaredLength gebruiken?
 		{
 			Neighbors[NrOfNeighbors] = other;
 			++NrOfNeighbors;
