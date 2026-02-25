@@ -36,6 +36,7 @@ Flock::Flock(
 		if (pAgent)
 		{
 			pAgent->SetActorTickEnabled(false);
+			pAgent->SetDebugRenderingEnabled(false);
 			Agents[idx] = pAgent;
 		}
 	}
@@ -44,7 +45,19 @@ Flock::Flock(
 
 	////////////////
 	///Steering Behaviors
+	
+	//std::unique_ptr<Separation> pSeparationBehavior{};
+	pCohesionBehavior = std::make_unique<Cohesion>(this);
+	//std::unique_ptr<VelocityMatch> pVelMatchBehavior{};
 	pSeekBehavior = std::make_unique<Seek>();
+	//std::unique_ptr<Wander> pWanderBehavior{};
+	//std::unique_ptr<Evade> pEvadeBehavior{};
+	
+	//TODO: TEMP 
+	for (const auto pAgent : Agents)
+	{
+		pAgent->SetSteeringBehavior(pCohesionBehavior.get());
+	}
 	
 	
  // TODO: initialize the flock and the memory pool
@@ -67,6 +80,7 @@ void Flock::Tick(float DeltaTime)
 	for (auto pAgent : Agents)
 	{
 		RegisterNeighbors(pAgent);
+		pAgent->Tick(DeltaTime);
 	}
 }
 
