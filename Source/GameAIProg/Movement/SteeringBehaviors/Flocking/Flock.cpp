@@ -1,4 +1,6 @@
 #include "Flock.h"
+
+#include "AssetDefinitionAssetInfo.h"
 #include "FlockingSteeringBehaviors.h"
 #include "Shared/ImGuiHelpers.h"
 
@@ -16,8 +18,32 @@ Flock::Flock(
 {
 	Agents.SetNum(FlockSize);
 
- // TODO: initialize the flock and the memory pool
+	UE_LOG(LogTemp, Warning, TEXT("Array size: %d"), Agents.Num());
 	
+	FActorSpawnParameters SpawnParams{};
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	
+	for (int idx = 0; idx < FlockSize; ++idx)
+	{
+		FVector SpawnPos {
+			FMath::RandRange(-WorldSize, WorldSize),
+			FMath::RandRange(-WorldSize, WorldSize),
+			90
+		};
+		
+		ASteeringAgent* pAgent = pWorld->SpawnActor<ASteeringAgent>(AgentClass, SpawnPos, 
+			FRotator::ZeroRotator, SpawnParams);
+		
+		if (pAgent)
+		{
+			Agents.Add(pAgent);
+		}
+	}
+
+
+	
+ // TODO: initialize the flock and the memory pool
+
 	/*
 	 *FActor.TickEnabled(false)!
 	 * Niet tick enabled anders gaan alle agents de laatste neighbours gebruiken
