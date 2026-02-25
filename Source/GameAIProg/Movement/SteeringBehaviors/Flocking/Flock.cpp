@@ -66,7 +66,7 @@ void Flock::Tick(float DeltaTime)
 	
 	for (auto pAgent : Agents)
 	{
-		//RegisterNeighbors(pAgent);
+		RegisterNeighbors(pAgent);
 	}
 }
 
@@ -130,9 +130,9 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 #endif
 }
 
+ //Debugrender the neighbors for the first agent in the flock
 void Flock::RenderNeighborhood()
 {
- // TODO: Debugrender the neighbors for the first agent in the flock
 	//Neighborhood Radius
 	DrawDebugCircle(pWorld, FVector(Agents[0]->GetPosition(),0.f), NeighborhoodRadius, 16, FColor::Blue, false, -1, 0, 0, 
 		FVector(0,1,0), FVector(1,0,0));
@@ -144,6 +144,13 @@ void Flock::RenderNeighborhood()
 	{
 		DrawDebugPoint(pWorld, FVector(Neighbors[idx]->GetPosition(), 20.f), 30.f, FColor::Green);
 	}
+	
+	//Draw Average Position of Neighorhood
+	FVector2D AvgPos{GetAverageNeighborPos()};
+	DrawDebugPoint(pWorld, FVector(AvgPos, 20.f), 30.f, FColor::Red);
+	
+	//TODO: Draw average lineair velocity
+	
 }
 
 #ifndef GAMEAI_USE_SPACE_PARTITIONING
@@ -153,7 +160,7 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 	
 	for (auto* other : Agents)
 	{
-		//agent is not included in its own neighborhood
+		//Make sure agent is not included in its own neighborhood
 		if (other == pAgent) continue;
 		
 		const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
@@ -163,16 +170,9 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 			++NrOfNeighbors;
 			
 			//Stop checking neighbors if memory pool is full
-			if (NrOfNeighbors >= MaxNeighbors)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Neighbors: %d"), NrOfNeighbors);
-				return;
-			}
+			if (NrOfNeighbors >= MaxNeighbors) return;
 		}
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("Neighbors: %d"), NrOfNeighbors);
-
 }
 #endif
 
@@ -180,7 +180,11 @@ FVector2D Flock::GetAverageNeighborPos() const
 {
 	FVector2D avgPosition = FVector2D::ZeroVector;
 
- // TODO: Implement
+	for (int Idx = 0; Idx < NrOfNeighbors; ++Idx)
+	{
+		avgPosition += Neighbors[Idx]->GetPosition();
+	}
+	avgPosition /= NrOfNeighbors;
 	
 	return avgPosition;
 }
@@ -189,8 +193,13 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 {
 	FVector2D avgVelocity = FVector2D::ZeroVector;
 
- // TODO: Implement
-
+ // TODO: Check if velocity from each neighbor should be normalized before addition
+	for (int Idx = 0; Idx < NrOfNeighbors; ++Idx)
+	{
+		avgVelocity += Neighbors[Idx]->GetLinearVelocity();
+	}
+	avgVelocity /= NrOfNeighbors;
+	
 	return avgVelocity;
 }
 
