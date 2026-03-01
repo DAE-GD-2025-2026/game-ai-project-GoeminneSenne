@@ -144,9 +144,30 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 
   // TODO: implement ImGUI sliders for steering behavior weights here
 		
+		//Separation
 		ImGuiHelpers::ImGuiSliderFloatWithSetter("Separation",
 			pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
 			[this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight = InVal;}, "%.2f");
+		
+		//Cohesion
+        ImGuiHelpers::ImGuiSliderFloatWithSetter("Cohesion",
+        	pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight, 0.f, 1.f,
+        	[this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[1].Weight = InVal;}, "%.2f");
+		
+        //Alignment
+        ImGuiHelpers::ImGuiSliderFloatWithSetter("Alignment",
+        	pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight, 0.f, 1.f,
+        	[this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[2].Weight = InVal;}, "%.2f");
+		
+		//Wander
+        ImGuiHelpers::ImGuiSliderFloatWithSetter("Wander",
+        pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight, 0.f, 1.f,
+		[this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[3].Weight = InVal;}, "%.2f");
+		
+		//Seek
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Seek",
+   pBlendedSteering->GetWeightedBehaviorsRef()[4].Weight, 0.f, 1.f,
+   [this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[4].Weight = InVal;}, "%.2f");
 		
 		//End
 		ImGui::End();
