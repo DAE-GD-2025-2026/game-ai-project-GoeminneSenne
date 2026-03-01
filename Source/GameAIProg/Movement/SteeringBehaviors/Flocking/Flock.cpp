@@ -63,9 +63,11 @@ Flock::Flock(
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
+	pPrioritySteering = std::make_unique<PrioritySteering>(std::vector<ISteeringBehavior*>{pEvadeBehavior.get(), pBlendedSteering.get()});
+	
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pBlendedSteering.get());
+		pAgent->SetSteeringBehavior(pPrioritySteering.get());
 	}
 }
 
@@ -82,11 +84,14 @@ void Flock::Tick(float DeltaTime)
   // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
   // TODO: trim the agent to the world
 	
+	SetTarget_Evade();
+	
 	for (auto pAgent : Agents)
 	{
 		RegisterNeighbors(pAgent);
 		pAgent->Tick(DeltaTime);
 	}
+	
 }
 
 void Flock::RenderDebug()
@@ -252,6 +257,19 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 
 void Flock::SetTarget_Seek(FSteeringParams const& Target)
 {
- // TODO: Implement
+	// TODO: Implement
+	pSeekBehavior->SetTarget(Target);
 }
+
+void Flock::SetTarget_Evade()
+{
+	FTargetData Target;
+	Target.Position = pAgentToEvade->GetPosition();
+	Target.Orientation = pAgentToEvade->GetRotation();
+	Target.LinearVelocity = pAgentToEvade->GetLinearVelocity();
+	Target.AngularVelocity = pAgentToEvade->GetAngularVelocity();
+	
+	pEvadeBehavior->SetTarget(Target);
+}
+
 
