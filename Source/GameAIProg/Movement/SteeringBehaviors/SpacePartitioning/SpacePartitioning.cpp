@@ -42,7 +42,14 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 	CellWidth = Width / Cols;
 	CellHeight = Height / Rows;
 
-	// TODO create the cells
+	Cells.reserve(Rows * Cols);
+	for (int Row = 0; Row < Rows; ++Row)
+	{
+		for (int Col = 0; Col < Cols; ++Col)
+		{
+			Cells.emplace_back(Width * Row, Height * Col, CellWidth, CellHeight);
+		}
+	}
 }
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
@@ -76,6 +83,8 @@ void CellSpace::RenderCells() const
 int CellSpace::PositionToIndex(FVector2D const & Pos) const
 {
 	// TODO Calculate the index of the cell based on the position
+	
+	
 	return 0;
 }
 
