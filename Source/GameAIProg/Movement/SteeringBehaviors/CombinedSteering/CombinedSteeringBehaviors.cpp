@@ -13,10 +13,13 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 {
 	SteeringOutput BlendedSteering = {};
 	float TotalWeight = 0.f;
-	for (const WeightedBehavior& WeightedBehavior : WeightedBehaviors)
+	for (const WeightedBehavior& Wb : WeightedBehaviors)
 	{
-		BlendedSteering += WeightedBehavior.pBehavior->CalculateSteering(DeltaT, Agent) * WeightedBehavior.Weight;
-		TotalWeight += WeightedBehavior.Weight;
+		SteeringOutput BehaviorOutput = Wb.pBehavior->CalculateSteering(DeltaT, Agent);
+		BehaviorOutput.LinearVelocity.Normalize();
+		
+		BlendedSteering += BehaviorOutput * Wb.Weight;
+		TotalWeight += Wb.Weight;
 	}
 	BlendedSteering /= TotalWeight;
 	
@@ -26,7 +29,7 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 }
 
 float* BlendedSteering::GetWeight(ISteeringBehavior* const SteeringBehavior)
-{
+{	
 	auto it = find_if(WeightedBehaviors.begin(),
 		WeightedBehaviors.end(),
 		[SteeringBehavior](const WeightedBehavior& Elem)

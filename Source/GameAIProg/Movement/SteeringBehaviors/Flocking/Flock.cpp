@@ -55,11 +55,11 @@ Flock::Flock(
 	
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.reserve(5);
-	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.5f);
-	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.03f);
-	//WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.5f);
-	//WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.5f);
-	//WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.5f);
+	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
+	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
+	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
+	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
+	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.f);
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
@@ -137,11 +137,17 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Spacing();
 
   // TODO: implement ImGUI checkboxes for debug rendering here
-
+		
+		
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
 
   // TODO: implement ImGUI sliders for steering behavior weights here
+		
+		ImGuiHelpers::ImGuiSliderFloatWithSetter("Separation",
+			pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight, 0.f, 1.f,
+			[this](float InVal){pBlendedSteering->GetWeightedBehaviorsRef()[0].Weight = InVal;}, "%.2f");
+		
 		//End
 		ImGui::End();
 	}

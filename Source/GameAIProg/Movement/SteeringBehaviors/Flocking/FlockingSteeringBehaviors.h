@@ -18,7 +18,7 @@ private:
 
 //SEPARATION - FLOCKING
 //*********************
-class Separation final : public Flee
+class Separation final : public ISteeringBehavior
 {
 public:
 	Separation(Flock* const pFlock) : pFlock(pFlock) {};
