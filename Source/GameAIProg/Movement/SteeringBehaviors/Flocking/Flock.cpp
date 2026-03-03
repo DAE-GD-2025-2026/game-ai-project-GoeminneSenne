@@ -2,6 +2,7 @@
 
 #include "AssetDefinitionAssetInfo.h"
 #include "FlockingSteeringBehaviors.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Shared/ImGuiHelpers.h"
 
 
@@ -14,6 +15,7 @@ Flock::Flock(
 	bool bTrimWorld)
 	: pWorld{pWorld}
 	, FlockSize{ FlockSize }
+	, MaxNeighbors{ FlockSize / 2 }
 	, pAgentToEvade{pAgentToEvade}
 {
 	Agents.SetNum(FlockSize);
@@ -23,6 +25,7 @@ Flock::Flock(
 		WorldSize * 2, WorldSize * 2, 
 		NrOfCellsX, NrOfCellsX, 
 		MaxNeighbors);
+	
 	OldPositions.SetNum(FlockSize);
 	
 	FActorSpawnParameters SpawnParams{};
@@ -64,11 +67,11 @@ Flock::Flock(
 	
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.reserve(5);
-	//WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
-	//WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
-	//WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
-	//WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
-	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.1f);
+	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
+	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
+	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
+	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
+	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.05f);
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
@@ -76,8 +79,7 @@ Flock::Flock(
 	
 	for (const auto pAgent : Agents)
 	{
-		//pAgent->SetSteeringBehavior(pPrioritySteering.get());
-		pAgent->SetSteeringBehavior(pBlendedSteering.get());
+		pAgent->SetSteeringBehavior(pPrioritySteering.get());
 	}
 }
 
@@ -96,24 +98,18 @@ void Flock::Tick(float DeltaTime)
 	
 	SetTarget_Evade();
 	
-	for (auto pAgent : Agents)
-	{
-		RegisterNeighbors(pAgent);
-		pAgent->Tick(DeltaTime);
-		
-		
-		
-	}
 	
 	for (int idx{0}; idx < FlockSize; ++idx)
 	{
-		auto pAgent = Agents[idx];
-		
+		auto* pAgent = Agents[idx];
 		RegisterNeighbors(pAgent);
 		pAgent->Tick(DeltaTime);
 		
-		pPartitionedSpace->UpdateAgentCell(*pAgent, OldPositions[idx]);
-		OldPositions[idx] = pAgent->GetPosition();
+		if (UseSpacePartitioning)
+		{
+			pPartitionedSpace->UpdateAgentCell(*(Agents[idx]), OldPositions[idx]);
+			OldPositions[idx] = pAgent->GetPosition();
+		}
 	}
 }
 
@@ -125,7 +121,10 @@ void Flock::RenderDebug()
 		RenderNeighborhood();
 	}
 	
-	pPartitionedSpace->RenderCells();
+		pPartitionedSpace->RenderCells();
+	if (UseSpacePartitioning)
+	{
+	}
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -214,12 +213,16 @@ void Flock::RenderNeighborhood()
 	FVector(0,1,0), FVector(1,0,0));
 		//TODO: draw Circle with matrix
 	
+	//Bounding box
+	DrawDebugBox(pWorld, FVector(Agents[0]->GetPosition(), 0.f), 
+		FVector(NeighborhoodRadius, NeighborhoodRadius, 1.f), FColor::Blue);
+	
 	//Mark all included neighbors
 	//TODO kleur veranderen van agents ipv punt erop te tekenen
 	RegisterNeighbors(Agents[0]);
-	for (int idx = 0; idx < NrOfNeighbors; ++idx)
+	for (int idx = 0; idx < GetNrOfNeighbors(); ++idx)
 	{
-		DrawDebugPoint(pWorld, FVector(Neighbors[idx]->GetPosition(), 20.f), 30.f, FColor::Green);
+		DrawDebugPoint(pWorld, FVector(GetNeighbors()[idx]->GetPosition(), 20.f), 30.f, FColor::Green);
 	}
 	
 	//Draw Average Position of Neighorhood
@@ -230,38 +233,59 @@ void Flock::RenderNeighborhood()
 	
 }
 
-//#ifndef GAMEAI_USE_SPACE_PARTITIONING
+const TArray<ASteeringAgent*>& Flock::GetNeighbors() const
+{
+	if (UseSpacePartitioning)
+		return pPartitionedSpace->GetNeighbors();
+	else
+		return Neighbors;
+}
+
+int Flock::GetNrOfNeighbors() const
+{
+	if (UseSpacePartitioning)
+		return pPartitionedSpace->GetNrOfNeighbors();
+	else
+		return NrOfNeighbors;
+}
+
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
-	NrOfNeighbors = 0;
-	
-	for (auto* other : Agents)
+	if (UseSpacePartitioning)
 	{
-		//Make sure agent is not included in its own neighborhood
-		if (other == pAgent) continue;
-		
-		const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
-		if (Distance < NeighborhoodRadius) //TODO SquaredLength gebruiken?
+		pPartitionedSpace->RegisterNeighbors(*pAgent, NeighborhoodRadius);
+	}
+	else
+	{
+		NrOfNeighbors = 0;
+	
+		for (auto* other : Agents)
 		{
-			Neighbors[NrOfNeighbors] = other;
-			++NrOfNeighbors;
+			//Make sure agent is not included in its own neighborhood
+			if (other == pAgent) continue;
+		
+			const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
+			if (Distance < NeighborhoodRadius) //TODO SquaredLength gebruiken?
+			{
+				Neighbors[NrOfNeighbors] = other;
+				++NrOfNeighbors;
 			
-			//Stop checking neighbors if memory pool is full
-			if (NrOfNeighbors >= MaxNeighbors) return;
+				//Stop checking neighbors if memory pool is full
+				if (NrOfNeighbors >= MaxNeighbors) return;
+			}
 		}
 	}
 }
-//#endif
 
 FVector2D Flock::GetAverageNeighborPos() const
 {
 	FVector2D avgPosition = FVector2D::ZeroVector;
 
-	for (int Idx = 0; Idx < NrOfNeighbors; ++Idx)
+	for (int Idx = 0; Idx < GetNrOfNeighbors(); ++Idx)
 	{
-		avgPosition += Neighbors[Idx]->GetPosition();
+		avgPosition += GetNeighbors()[Idx]->GetPosition();
 	}
-	avgPosition /= NrOfNeighbors;
+	avgPosition /= GetNrOfNeighbors();
 	
 	return avgPosition;
 }
@@ -271,11 +295,11 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 	FVector2D avgVelocity = FVector2D::ZeroVector;
 
  // TODO: Check if velocity from each neighbor should be normalized before addition
-	for (int Idx = 0; Idx < NrOfNeighbors; ++Idx)
+	for (int Idx = 0; Idx < GetNrOfNeighbors(); ++Idx)
 	{
-		avgVelocity += Neighbors[Idx]->GetLinearVelocity();
+		avgVelocity += GetNeighbors()[Idx]->GetLinearVelocity();
 	}
-	avgVelocity /= NrOfNeighbors;
+	avgVelocity /= GetNrOfNeighbors();
 	
 	return avgVelocity;
 }

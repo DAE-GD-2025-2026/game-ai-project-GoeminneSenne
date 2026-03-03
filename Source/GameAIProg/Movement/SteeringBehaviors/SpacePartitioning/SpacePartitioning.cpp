@@ -72,14 +72,48 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 	
 	if (NewCellIndex == OldCellIndex) return;
 	
-	Cells[NewCellIndex].Agents.push_back(&Agent);
-	Cells[OldCellIndex].Agents.remove(&Agent);
+	if (NewCellIndex > 0 && NewCellIndex < Cells.size())
+	{
+		Cells[NewCellIndex].Agents.push_back(&Agent);
+	}
+	
+	if (OldCellIndex > 0 && OldCellIndex < Cells.size())
+	{
+		Cells[OldCellIndex].Agents.remove(&Agent);
+	}
 }
 
 void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
 {
+	NrOfNeighbors = 0;
+	
 	// TODO Register the neighbors for the provided agent
-	// TODO Only check the cells that are within the radius of the neighborhood
+	// TODO Only check the cells that are within the radius of the	
+	FVector2D Min = Agent.GetPosition() - FVector2D(QueryRadius, QueryRadius);
+	FVector2D Max = Agent.GetPosition() + FVector2D(QueryRadius, QueryRadius);
+	
+	FRect BoundingBox{Min, Max}; 
+	
+	for (const Cell& cell : Cells)
+	{
+		if (not DoRectsOverlap(BoundingBox, cell.BoundingBox)) continue;
+	
+		for (const auto& Other : cell.Agents)
+		{
+			if (Other == &Agent) continue;
+			
+			const float DistanceSqr = FVector2D::DistSquared(Agent.GetPosition(), Other->GetPosition());
+			if (DistanceSqr <= QueryRadius * QueryRadius)
+			{
+				Neighbors[NrOfNeighbors] = Other;
+				++NrOfNeighbors;
+				
+				//Stop checking neighbors if memory pool is full
+				if (NrOfNeighbors >= Neighbors.Num()) return;
+			}
+		}
+	}
+	
 }
 
 void CellSpace::EmptyCells()

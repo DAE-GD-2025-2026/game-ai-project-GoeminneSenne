@@ -26,7 +26,7 @@ void ALevel_Flocking::BeginPlay()
 	pAgentToEvade = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass,
 		{0, 0, 90}, FRotator::ZeroRotator);
 	pAgentToEvade->SetSteeringBehavior(pWander.get());
-	//pAgentToEvade->SetDebugRenderingEnabled(false);
+	pAgentToEvade->SetDebugRenderingEnabled(false);
 	
 	//Create Flock
 	pFlock = TUniquePtr<Flock>(
