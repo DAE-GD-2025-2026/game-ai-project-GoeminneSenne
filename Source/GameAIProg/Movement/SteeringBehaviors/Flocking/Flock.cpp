@@ -19,6 +19,12 @@ Flock::Flock(
 	Agents.SetNum(FlockSize);
 	Neighbors.SetNum(MaxNeighbors);
 	
+	pPartitionedSpace = std::make_unique<CellSpace>(pWorld, 
+		WorldSize * 2, WorldSize * 2, 
+		NrOfCellsX, NrOfCellsX, 
+		MaxNeighbors);
+	OldPositions.SetNum(FlockSize);
+	
 	FActorSpawnParameters SpawnParams{};
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
@@ -38,6 +44,9 @@ Flock::Flock(
 			pAgent->SetActorTickEnabled(false);
 			pAgent->SetDebugRenderingEnabled(false);
 			Agents[idx] = pAgent;
+			
+			pPartitionedSpace->AddAgent(*pAgent);
+			OldPositions[idx] = pAgent->GetPosition();
 		}
 	}
 	
@@ -55,10 +64,10 @@ Flock::Flock(
 	
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.reserve(5);
-	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
-	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
-	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
-	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
+	//WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
+	//WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
+	//WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
+	//WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
 	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.f);
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
@@ -67,7 +76,8 @@ Flock::Flock(
 	
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pPrioritySteering.get());
+		//pAgent->SetSteeringBehavior(pPrioritySteering.get());
+		pAgent->SetSteeringBehavior(pBlendedSteering.get());
 	}
 }
 
@@ -90,8 +100,21 @@ void Flock::Tick(float DeltaTime)
 	{
 		RegisterNeighbors(pAgent);
 		pAgent->Tick(DeltaTime);
+		
+		
+		
 	}
 	
+	for (int idx{0}; idx < FlockSize; ++idx)
+	{
+		auto pAgent = Agents[idx];
+		
+		RegisterNeighbors(pAgent);
+		pAgent->Tick(DeltaTime);
+		
+		pPartitionedSpace->UpdateAgentCell(*pAgent, OldPositions[idx]);
+		OldPositions[idx] = pAgent->GetPosition();
+	}
 }
 
 void Flock::RenderDebug()
@@ -101,6 +124,8 @@ void Flock::RenderDebug()
 	{
 		RenderNeighborhood();
 	}
+	
+	pPartitionedSpace->RenderCells();
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -205,7 +230,7 @@ void Flock::RenderNeighborhood()
 	
 }
 
-#ifndef GAMEAI_USE_SPACE_PARTITIONING
+//#ifndef GAMEAI_USE_SPACE_PARTITIONING
 void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 {
 	NrOfNeighbors = 0;
@@ -226,7 +251,7 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 		}
 	}
 }
-#endif
+//#endif
 
 FVector2D Flock::GetAverageNeighborPos() const
 {

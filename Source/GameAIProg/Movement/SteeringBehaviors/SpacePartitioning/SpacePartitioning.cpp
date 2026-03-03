@@ -38,6 +38,8 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 {
 	Neighbors.SetNum(MaxEntities);
 	
+	SpaceBottomLeft = CellOrigin - FVector2D(Width / 2.f, Height / 2.f);
+	
 	//calculate bounds of a cell
 	CellWidth = Width / Cols;
 	CellHeight = Height / Rows;
@@ -46,15 +48,19 @@ CellSpace::CellSpace(UWorld* pWorld, float Width, float Height, int Rows, int Co
 	for (int Row = 0; Row < Rows; ++Row)
 	{
 		for (int Col = 0; Col < Cols; ++Col)
-		{
-			Cells.emplace_back(Width * Row, Height * Col, CellWidth, CellHeight);
+		{			
+			Cells.emplace_back(
+				SpaceBottomLeft.X + CellWidth * Row, 
+				SpaceBottomLeft.Y + CellHeight * Col,
+				CellWidth, CellHeight);
 		}
 	}
 }
 
 void CellSpace::AddAgent(ASteeringAgent& Agent)
 {
-	// TODO Add the agent to the correct cell
+	int CellIndex = PositionToIndex(Agent.GetPosition());
+	Cells[CellIndex].Agents.push_back(&Agent);
 }
 
 void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
@@ -77,15 +83,40 @@ void CellSpace::EmptyCells()
 
 void CellSpace::RenderCells() const
 {
-	// TODO Render the cells with the number of agents inside of it
+	// TODO Render the cells with the number of agents inside of 
+	std::vector<FVector2D> RectPoints(4);
+	
+	for (const Cell& cell : Cells)
+	{
+		RectPoints = std::move(cell.GetRectPoints());
+		
+		FVector2D CellCenter{RectPoints[0]};
+		CellCenter.X += CellWidth / 2.f;
+		CellCenter.Y += CellHeight / 2.f;
+		
+		DrawDebugString(pWorld, FVector(CellCenter, 1.f), FString::FromInt(cell.Agents.size()), 
+			nullptr, FColor::Purple, 0.f, false, 2.f);
+		
+		for (int idx{}; idx < 4; ++idx)
+		{
+			DrawDebugLine(pWorld, FVector(RectPoints[idx],0), FVector(RectPoints[(idx+1) % 4], 0), FColor::Purple);
+		}
+	}
 }
 
 int CellSpace::PositionToIndex(FVector2D const & Pos) const
 {
-	// TODO Calculate the index of the cell based on the position
+	int IndexX = FMath::FloorToInt((Pos.X - SpaceBottomLeft.X) / CellWidth);
+	int IndexY = FMath::FloorToInt((Pos.Y - SpaceBottomLeft.Y) / CellHeight);
 	
+	UE_LOG(LogTemp, Warning, TEXT("X of position: %d"), IndexX);
+
+	if (IndexX < 0 || IndexX >= NrOfCols || IndexY < 0 || IndexY >= NrOfRows)
+	{
+		return -1;
+	}
 	
-	return 0;
+	return IndexX * NrOfCols + IndexY;
 }
 
 bool CellSpace::DoRectsOverlap(FRect const & RectA, FRect const & RectB)

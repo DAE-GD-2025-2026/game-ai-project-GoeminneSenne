@@ -53,6 +53,8 @@ private:
 	std::vector<Cell> Cells;
 	FVector2D CellOrigin{};
 	
+	FVector2D SpaceBottomLeft{};
+	
 	float SpaceWidth;
 	float SpaceHeight;
 
