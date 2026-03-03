@@ -67,6 +67,13 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 {
 	//TODO Check if the agent needs to be moved to another cell.
 	//TODO Use the calculated index for oldPos and currentPos for this
+	int NewCellIndex = PositionToIndex(Agent.GetPosition());
+	int OldCellIndex = PositionToIndex(OldPos);
+	
+	if (NewCellIndex == OldCellIndex) return;
+	
+	Cells[NewCellIndex].Agents.push_back(&Agent);
+	Cells[OldCellIndex].Agents.remove(&Agent);
 }
 
 void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
