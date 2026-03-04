@@ -121,9 +121,9 @@ void Flock::RenderDebug()
 		RenderNeighborhood();
 	}
 	
-		pPartitionedSpace->RenderCells();
 	if (UseSpacePartitioning)
 	{
+		pPartitionedSpace->RenderCells();
 	}
 }
 

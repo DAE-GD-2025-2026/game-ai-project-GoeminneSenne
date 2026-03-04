@@ -42,7 +42,7 @@ private:
 	int FlockSize{0};
 	TArray<ASteeringAgent*> Agents{};
 	
-	bool UseSpacePartitioning{false};
+	bool UseSpacePartitioning{true};
 	
 	std::unique_ptr<CellSpace> pPartitionedSpace{};
 	int NrOfCellsX{ 10 };
