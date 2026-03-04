@@ -46,7 +46,29 @@ void ALevel_GraphTheory::BeginPlay()
 	
 	auto NodeId1 = Graph.AddNode(std::make_unique<Node>(FVector2D{0.f, 0.f}));
 	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
+	auto NodeId3 = Graph.AddNode(std::make_unique<Node>(FVector2D{50.f, -200.f}));
 	Graph.AddConnection(NodeId1, NodeId2);
+	Graph.AddConnection(NodeId2, NodeId3);
+	
+	//Create Eulerian Path
+	pEulerianPath = std::make_unique<GameAI::EulerianPath>(&Graph);
+	
+	//TODO : TEMP Testing
+	auto result = pEulerianPath->IsEulerian();
+	
+	if (result == GameAI::Eulerianity::notEulerian)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Graph is not Eulerian"))
+	}
+	else if (result == Eulerianity::semiEulerian)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Graph is semi Eulerian"))
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Graph is Eulerian"))
+
+	}
 	
 	// Spawn the Agent
 	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
