@@ -18,6 +18,8 @@ SteeringOutput Cohesion::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 	return Output;
 }
 
+//*********************
+//SEPARATION (FLOCKING)
 SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 {
 	//Flee from every neighbor (inversely proportional)
@@ -44,6 +46,8 @@ SteeringOutput Separation::CalculateSteering(float deltaT, ASteeringAgent& pAgen
 	
 }
 
+//*************************
+//ALIGNMENT (FLOCKING)
 SteeringOutput Alignment::CalculateSteering(float deltaT, ASteeringAgent& pAgent)
 {
 	SteeringOutput Output{};
@@ -52,8 +56,6 @@ SteeringOutput Alignment::CalculateSteering(float deltaT, ASteeringAgent& pAgent
 	return Output;
 }
 
-//*********************
-//SEPARATION (FLOCKING)
 
-//*************************
-//VELOCITY MATCH (FLOCKING)
+
+
