@@ -71,7 +71,7 @@ Flock::Flock(
 	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
 	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
 	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
-	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.05f);
+	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 1.f);
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
@@ -79,7 +79,7 @@ Flock::Flock(
 	
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pPrioritySteering.get());
+		pAgent->SetSteeringBehavior(pBlendedSteering.get());
 	}
 }
 
@@ -104,6 +104,9 @@ void Flock::Tick(float DeltaTime)
 		auto* pAgent = Agents[idx];
 		RegisterNeighbors(pAgent);
 		pAgent->Tick(DeltaTime);
+		
+		//pPartitionedSpace->UpdateAgentCell(*(Agents[idx]), OldPositions[idx]);
+		//OldPositions[idx] = pAgent->GetPosition();
 		
 		if (UseSpacePartitioning)
 		{
@@ -166,12 +169,12 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Spacing();
 
   // TODO: implement ImGUI checkboxes for debug rendering here
+		ImGui::Checkbox("Use Space Partitioning", &UseSpacePartitioning);
 		
-		
-		ImGui::Text("Behavior Weights");
-		ImGui::Spacing();
 
   // TODO: implement ImGUI sliders for steering behavior weights here
+		ImGui::Text("Behavior Weights");
+		ImGui::Spacing();
 		
 		//Separation
 		ImGuiHelpers::ImGuiSliderFloatWithSetter("Separation",

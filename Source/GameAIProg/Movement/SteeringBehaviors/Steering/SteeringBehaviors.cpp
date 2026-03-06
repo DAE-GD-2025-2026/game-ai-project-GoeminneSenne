@@ -114,7 +114,7 @@ SteeringOutput Evade::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 		Steering = Pursuit::CalculateSteering(deltaT, Agent);
 		Steering.LinearVelocity *= -1;
 	}
-	
+		
 	return Steering;
 }
 

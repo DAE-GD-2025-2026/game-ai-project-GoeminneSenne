@@ -44,14 +44,7 @@ namespace GameAI
 		int NrOfOddDegrees{0};
 		for (auto node : m_pGraph->GetActiveNodes())
 		{
-			int InDegree = m_pGraph->FindConnectionsTo(node->GetId()).size();
-			int OutDegree = m_pGraph->FindConnectionsFrom(node->GetId()).size();
-			
-			int Degree = InDegree + OutDegree;
-			if (m_pGraph->GetIsDirectional())
-				Degree /= 2;
-			
-			if (Degree & 1)
+			if (HasOddDegree(node))
 				++NrOfOddDegrees;
 		}
 		
@@ -75,8 +68,6 @@ namespace GameAI
 		std::vector<Node*> Nodes = graphCopy.GetActiveNodes();
 		int currentNodeId{ Graphs::InvalidNodeId };
 		
-		// TODO Check if there can be an Euler path
-		// TODO If this graph is not eulerian, return the empty path
 		if (eulerianity == Eulerianity::notEulerian)
 			return Path;
 		
@@ -85,12 +76,21 @@ namespace GameAI
 			currentNodeId = Nodes.front()->GetId();
 		else if (eulerianity == Eulerianity::semiEulerian)
 		{
-			
+			for (int idx = 0; idx < Nodes.size(); ++idx)
+			{
+				if (HasOddDegree(Nodes[idx]))
+				{
+					currentNodeId = idx;
+					break;
+				}
+			}
 		}
 		
 		// TODO Start algorithm loop
 		std::stack<int> nodeStack;
 
+		nodeStack.push(currentNodeId);
+		
 		std::reverse(Path.begin(), Path.end());
 		return Path;
 	}
@@ -134,5 +134,17 @@ namespace GameAI
 			if (not b) return false;
 		}
 		return true;
+	}
+	
+	inline bool EulerianPath::HasOddDegree(Node* const pNode) const
+	{
+		int InDegree = m_pGraph->FindConnectionsTo(pNode->GetId()).size();
+		int OutDegree = m_pGraph->FindConnectionsFrom(pNode->GetId()).size();
+			
+		int Degree = InDegree + OutDegree;
+		if (not m_pGraph->GetIsDirectional())
+			Degree /= 2;
+		
+		return (Degree & 1);
 	}
 }

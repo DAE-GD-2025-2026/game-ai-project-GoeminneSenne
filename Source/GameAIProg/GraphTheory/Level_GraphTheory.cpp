@@ -47,8 +47,11 @@ void ALevel_GraphTheory::BeginPlay()
 	auto NodeId1 = Graph.AddNode(std::make_unique<Node>(FVector2D{0.f, 0.f}));
 	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
 	auto NodeId3 = Graph.AddNode(std::make_unique<Node>(FVector2D{50.f, -200.f}));
+	auto NodeId4 = Graph.AddNode(std::make_unique<Node>(FVector2D{250.f, 300.f}));
 	Graph.AddConnection(NodeId1, NodeId2);
 	Graph.AddConnection(NodeId2, NodeId3);
+	Graph.AddConnection(NodeId1, NodeId3);
+	Graph.AddConnection(NodeId2, NodeId4);
 	
 	//Create Eulerian Path
 	pEulerianPath = std::make_unique<GameAI::EulerianPath>(&Graph);

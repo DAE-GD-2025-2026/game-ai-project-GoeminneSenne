@@ -76,7 +76,6 @@ void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 	{
 		Cells[NewCellIndex].Agents.push_back(&Agent);
 	}
-	
 	if (OldCellIndex > 0 && OldCellIndex < Cells.size())
 	{
 		Cells[OldCellIndex].Agents.remove(&Agent);
