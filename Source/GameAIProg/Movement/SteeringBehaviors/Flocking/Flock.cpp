@@ -70,7 +70,7 @@ Flock::Flock(
 	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
 	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
 	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
-	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 1.f);
+	WeightedBehaviors.emplace_back(pSeekBehavior.get(), 0.05f);
 	
 	pBlendedSteering = std::make_unique<BlendedSteering>(WeightedBehaviors);
 	
@@ -78,7 +78,7 @@ Flock::Flock(
 	
 	for (const auto pAgent : Agents)
 	{
-		pAgent->SetSteeringBehavior(pBlendedSteering.get());
+		pAgent->SetSteeringBehavior(pPrioritySteering.get());
 	}
 }
 
