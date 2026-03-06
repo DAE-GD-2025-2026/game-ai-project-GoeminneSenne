@@ -122,8 +122,8 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	FVector2D CircleCenter = Agent.GetPosition() + FVector2D(Agent.GetActorForwardVector().GetSafeNormal2D()) * m_OffsetDistance;
 	
-	//TODO; MaxAngleChange implementen
-	m_WanderAngle = FMath::RandRange(0.f, 2*3.14f);
+	m_WanderAngle += FMath::RandRange(-m_MaxAngleChange, m_MaxAngleChange);
+	m_WanderAngle = FMath::UnwindRadians(m_WanderAngle);
 	FVector2D AnglePosition = CircleCenter;
 	AnglePosition.X += m_Radius * FMath::Cos(m_WanderAngle);
 	AnglePosition.Y += m_Radius * FMath::Sin(m_WanderAngle);

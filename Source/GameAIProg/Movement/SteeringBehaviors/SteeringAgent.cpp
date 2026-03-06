@@ -32,8 +32,7 @@ void ASteeringAgent::Tick(float DeltaTime)
 	{
 		SteeringOutput output = SteeringBehavior->CalculateSteering(DeltaTime, *this);
 		AddMovementInput(FVector{output.LinearVelocity, 0.f});
-		
-		if (!IsAutoOrienting())
+				if (!IsAutoOrienting())
 		{
 			if (AAIController* AIController = Cast<AAIController>(GetController()))
 			{

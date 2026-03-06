@@ -96,6 +96,6 @@ public:
 protected:
 	float m_OffsetDistance = 300.f; //Offset (Agent direction)
 	float m_Radius = 200.f; //WanderRadius
-	float m_MaxAngleChange = FMath::DegreesToRadians(45); //Max WanderAngle change per frame
+	float m_MaxAngleChange = FMath::DegreesToRadians(10); //Max WanderAngle change per frame
 	float m_WanderAngle = 0.f; //Internal
 };
