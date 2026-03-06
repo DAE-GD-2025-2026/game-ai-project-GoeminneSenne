@@ -58,8 +58,7 @@ void ASteeringAgent::Tick(float DeltaTime)
 		{
 			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition() + GetLinearVelocity(), 0.f), 100.f ,FColor::Green);
 			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorForwardVector() * 100.f, 100.f, FColor::Purple);
-		
-			//TODO: Arc tussen forward & linear velocity of gewoon loodrecht
+			DrawDebugDirectionalArrow(GetWorld(), FVector(GetPosition(), 0.f), FVector(GetPosition(), 0.f) + GetActorRightVector() * GetAngularVelocity(), 100.f, FColor::Cyan);
 		}
 	}
 }
