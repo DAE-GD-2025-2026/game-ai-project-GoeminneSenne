@@ -122,8 +122,6 @@ void ALevel_CombinedSteering::Tick(float DeltaTime)
 	// Combined Steering Update
 	UpdateTarget_Seek();
 	UpdateTarget_Evade();
-	
-	// TODO: implement Make sure to also evade the wanderer
 }
 
 void ALevel_CombinedSteering::UpdateTarget_Seek()

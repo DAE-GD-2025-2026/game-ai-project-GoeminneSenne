@@ -52,7 +52,6 @@ private:
 	float NeighborhoodRadius{200.f};
 	TArray<ASteeringAgent*> Neighbors{};
 	int NrOfNeighbors{0};
-	const int MaxNeighbors{50};
 
 	ASteeringAgent* pAgentToEvade{nullptr};
 	
@@ -69,8 +68,9 @@ private:
 
 	// UI and rendering
 	bool DebugRenderSteering{false};
-	bool DebugRenderNeighborhood{true};
-	bool DebugRenderPartitions{true};
+	bool DebugRenderNeighborhood{false};
+	bool DebugRenderPartitions{false};
+	bool DebugRenderAgentsInPartition{false};
 
 	void RenderNeighborhood();
 };

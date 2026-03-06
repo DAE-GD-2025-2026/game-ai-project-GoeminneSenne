@@ -121,7 +121,7 @@ void CellSpace::EmptyCells()
 		c.Agents.clear();
 }
 
-void CellSpace::RenderCells() const
+void CellSpace::RenderCells(bool shouldRenderNrofAgents) const
 {
 	// TODO Render the cells with the number of agents inside of 
 	std::vector<FVector2D> RectPoints(4);
@@ -134,8 +134,11 @@ void CellSpace::RenderCells() const
 		CellCenter.X += CellWidth / 2.f;
 		CellCenter.Y += CellHeight / 2.f;
 		
-		DrawDebugString(pWorld, FVector(CellCenter, 1.f), FString::FromInt(cell.Agents.size()), 
-			nullptr, FColor::Purple, 0.f, false, 2.f);
+		if (shouldRenderNrofAgents)
+		{
+			DrawDebugString(pWorld, FVector(CellCenter, 1.f), FString::FromInt(cell.Agents.size()), 
+				nullptr, FColor::Purple, 0.f, false, 2.f);
+		}
 		
 		for (int idx{}; idx < 4; ++idx)
 		{

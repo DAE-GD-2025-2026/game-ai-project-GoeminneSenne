@@ -3,7 +3,6 @@
 
 //SEEK
 //*******
-//TODO: Normalize outputs
 SteeringOutput Seek::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 {
 	SteeringOutput Steering{};
@@ -43,6 +42,7 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 		Agent.SetMaxLinearSpeed(OgMaxSpeed);
 	}
 
+	/*
 	//DrawDebugLines
 	if (Agent.GetDebugRenderingEnabled())
 	{
@@ -51,6 +51,7 @@ SteeringOutput Arrive::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 		DrawDebugCircle(Agent.GetWorld(), FVector(Agent.GetPosition(), 0.f), TargetRadius, 16, FColor::Orange,
 			false, -1, 0, 0, FVector(0,1, 0), FVector(1,0,0));
 	}
+	*/
 	
 	return Steering;
 }
@@ -90,11 +91,14 @@ SteeringOutput Pursuit::CalculateSteering(float deltaT, ASteeringAgent& Agent)
 	
 	const FVector2D PredictedPosition = Target.Position + Target.LinearVelocity * ReachTime;
 	
+	/*
 	if (Agent.GetDebugRenderingEnabled())
 	{
 		DrawDebugDirectionalArrow(Agent.GetWorld(), FVector(Agent.GetPosition(), 0.f), FVector(PredictedPosition, 0.f), 100, FColor::Red);
 		DrawDebugPoint(Agent.GetWorld(), FVector(PredictedPosition, 0.f), 10, FColor::Red);
 	}
+	*/
+	
 	SteeringOutput Steering{};
 	Steering.LinearVelocity = PredictedPosition - Agent.GetPosition(); //TODO: Target veranderen & opnieuw berekenen met Seek in de plaats
 	
@@ -128,6 +132,7 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 	AnglePosition.X += m_Radius * FMath::Cos(m_WanderAngle);
 	AnglePosition.Y += m_Radius * FMath::Sin(m_WanderAngle);
 	
+	/*
 	if (Agent.GetDebugRenderingEnabled())
 	{
 		DrawDebugPoint(Agent.GetWorld(), FVector(CircleCenter, 0.f), 10, FColor::Red);
@@ -136,6 +141,7 @@ SteeringOutput Wander::CalculateSteering(float DeltaT, ASteeringAgent& Agent)
 		DrawDebugPoint(Agent.GetWorld(), FVector(AnglePosition, 0.f), 15, FColor::Green);
 
 	}
+	*/
 	
 	SetTarget(FTargetData(AnglePosition));
 	return Seek::CalculateSteering(DeltaT, Agent);

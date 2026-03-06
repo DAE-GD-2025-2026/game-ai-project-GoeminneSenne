@@ -15,16 +15,15 @@ Flock::Flock(
 	bool bTrimWorld)
 	: pWorld{pWorld}
 	, FlockSize{ FlockSize }
-	, MaxNeighbors{ FlockSize / 2 }
 	, pAgentToEvade{pAgentToEvade}
 {
 	Agents.SetNum(FlockSize);
-	Neighbors.SetNum(MaxNeighbors);
+	Neighbors.SetNum(FlockSize / 2);
 	
 	pPartitionedSpace = std::make_unique<CellSpace>(pWorld, 
 		WorldSize * 2, WorldSize * 2, 
 		NrOfCellsX, NrOfCellsX, 
-		MaxNeighbors);
+		Neighbors.Num());
 	
 	OldPositions.SetNum(FlockSize);
 	
@@ -105,9 +104,6 @@ void Flock::Tick(float DeltaTime)
 		RegisterNeighbors(pAgent);
 		pAgent->Tick(DeltaTime);
 		
-		//pPartitionedSpace->UpdateAgentCell(*(Agents[idx]), OldPositions[idx]);
-		//OldPositions[idx] = pAgent->GetPosition();
-		
 		if (UseSpacePartitioning)
 		{
 			pPartitionedSpace->UpdateAgentCell(*(Agents[idx]), OldPositions[idx]);
@@ -124,9 +120,15 @@ void Flock::RenderDebug()
 		RenderNeighborhood();
 	}
 	
-	if (UseSpacePartitioning)
+	if (UseSpacePartitioning && DebugRenderPartitions)
 	{
-		pPartitionedSpace->RenderCells();
+		pPartitionedSpace->RenderCells(DebugRenderAgentsInPartition);
+	}
+	
+	//Render Steering for first 10 agents in flock
+	for (int idx{}; idx < 10; ++idx)
+	{
+		Agents[idx]->SetDebugRenderingEnabled(DebugRenderSteering);
 	}
 }
 
@@ -171,8 +173,35 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
   // TODO: implement ImGUI checkboxes for debug rendering here
 		ImGui::Checkbox("Use Space Partitioning", &UseSpacePartitioning);
 		
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+		
+		ImGui::Text("Debug Rendering");
+		ImGui::Spacing();
+		ImGui::Checkbox("Debug render steering", &DebugRenderSteering);
+		ImGui::Spacing();
+		ImGui::Checkbox("Debug render neighborhood", &DebugRenderNeighborhood);
+		
+		if (UseSpacePartitioning)
+		{
+			ImGui::Spacing();
+			ImGui::Checkbox("Debug render partitions", &DebugRenderPartitions);
+			
+			if (DebugRenderPartitions)
+			{
+				ImGui::Spacing();
+				ImGui::Checkbox("Debug agents in partition",&DebugRenderAgentsInPartition);
+				ImGui::Spacing();
+			}
+		}
 
-  // TODO: implement ImGUI sliders for steering behavior weights here
+		
+		//Behavior Weights
+		ImGui::Spacing();
+		ImGui::Separator();
+		ImGui::Spacing();
+		
 		ImGui::Text("Behavior Weights");
 		ImGui::Spacing();
 		
@@ -221,7 +250,6 @@ void Flock::RenderNeighborhood()
 		FVector(NeighborhoodRadius, NeighborhoodRadius, 1.f), FColor::Blue);
 	
 	//Mark all included neighbors
-	//TODO kleur veranderen van agents ipv punt erop te tekenen
 	RegisterNeighbors(Agents[0]);
 	for (int idx = 0; idx < GetNrOfNeighbors(); ++idx)
 	{
@@ -231,8 +259,6 @@ void Flock::RenderNeighborhood()
 	//Draw Average Position of Neighorhood
 	FVector2D AvgPos{GetAverageNeighborPos()};
 	DrawDebugPoint(pWorld, FVector(AvgPos, 20.f), 30.f, FColor::Red);
-	
-	//TODO: Draw average lineair velocity
 	
 }
 
@@ -267,14 +293,14 @@ void Flock::RegisterNeighbors(ASteeringAgent* const pAgent)
 			//Make sure agent is not included in its own neighborhood
 			if (other == pAgent) continue;
 		
-			const float Distance = FVector2D::Distance(other->GetPosition(), pAgent->GetPosition());
-			if (Distance < NeighborhoodRadius) //TODO SquaredLength gebruiken?
+			const float DistanceSqr = FVector2D::DistSquared(other->GetPosition(), pAgent->GetPosition());
+			if (DistanceSqr < NeighborhoodRadius * NeighborhoodRadius)
 			{
 				Neighbors[NrOfNeighbors] = other;
 				++NrOfNeighbors;
 			
 				//Stop checking neighbors if memory pool is full
-				if (NrOfNeighbors >= MaxNeighbors) return;
+				if (NrOfNeighbors >= Neighbors.Num()) return;
 			}
 		}
 	}
@@ -297,7 +323,6 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 {
 	FVector2D avgVelocity = FVector2D::ZeroVector;
 
- // TODO: Check if velocity from each neighbor should be normalized before addition
 	for (int Idx = 0; Idx < GetNrOfNeighbors(); ++Idx)
 	{
 		avgVelocity += GetNeighbors()[Idx]->GetLinearVelocity();
@@ -309,7 +334,6 @@ FVector2D Flock::GetAverageNeighborVelocity() const
 
 void Flock::SetTarget_Seek(FSteeringParams const& Target)
 {
-	// TODO: Implement
 	pSeekBehavior->SetTarget(Target);
 }
 

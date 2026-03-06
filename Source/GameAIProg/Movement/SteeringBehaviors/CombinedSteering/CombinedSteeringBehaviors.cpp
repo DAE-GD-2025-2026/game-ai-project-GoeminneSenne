@@ -22,9 +22,6 @@ SteeringOutput BlendedSteering::CalculateSteering(float DeltaT, ASteeringAgent& 
 		TotalWeight += Wb.Weight;
 	}
 	BlendedSteering /= TotalWeight;
-	
-	// TODO: Add debug drawing
-
 	return BlendedSteering;
 }
 

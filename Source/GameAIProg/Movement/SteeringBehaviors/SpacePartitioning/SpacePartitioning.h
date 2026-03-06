@@ -43,7 +43,7 @@ public:
 
 	//empties the cells of entities
 	void EmptyCells();
-	void RenderCells()const;
+	void RenderCells(bool shouldRenderNrofAgents)const;
 
 private:
 	// For debug draw purposes
