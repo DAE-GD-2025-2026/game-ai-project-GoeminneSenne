@@ -65,8 +65,6 @@ void CellSpace::AddAgent(ASteeringAgent& Agent)
 
 void CellSpace::UpdateAgentCell(ASteeringAgent& Agent, const FVector2D& OldPos)
 {
-	//TODO Check if the agent needs to be moved to another cell.
-	//TODO Use the calculated index for oldPos and currentPos for this
 	int NewCellIndex = PositionToIndex(Agent.GetPosition());
 	int OldCellIndex = PositionToIndex(OldPos);
 	
@@ -86,8 +84,6 @@ void CellSpace::RegisterNeighbors(ASteeringAgent& Agent, float QueryRadius)
 {
 	NrOfNeighbors = 0;
 	
-	// TODO Register the neighbors for the provided agent
-	// TODO Only check the cells that are within the radius of the	
 	FVector2D Min = Agent.GetPosition() - FVector2D(QueryRadius, QueryRadius);
 	FVector2D Max = Agent.GetPosition() + FVector2D(QueryRadius, QueryRadius);
 	
@@ -123,7 +119,6 @@ void CellSpace::EmptyCells()
 
 void CellSpace::RenderCells(bool shouldRenderNrofAgents) const
 {
-	// TODO Render the cells with the number of agents inside of 
 	std::vector<FVector2D> RectPoints(4);
 	
 	for (const Cell& cell : Cells)
@@ -152,8 +147,6 @@ int CellSpace::PositionToIndex(FVector2D const & Pos) const
 	int IndexX = FMath::FloorToInt((Pos.X - SpaceBottomLeft.X) / CellWidth);
 	int IndexY = FMath::FloorToInt((Pos.Y - SpaceBottomLeft.Y) / CellHeight);
 	
-	UE_LOG(LogTemp, Warning, TEXT("X of position: %d"), IndexX);
-
 	if (IndexX < 0 || IndexX >= NrOfCols || IndexY < 0 || IndexY >= NrOfRows)
 	{
 		return -1;

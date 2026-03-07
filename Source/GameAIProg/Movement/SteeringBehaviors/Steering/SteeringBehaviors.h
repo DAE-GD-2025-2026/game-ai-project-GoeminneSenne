@@ -53,7 +53,7 @@ public:
 	void SetTargetRadius(float targetRadius){TargetRadius = targetRadius;}
 	
 protected:
-	float OgMaxSpeed = 0.f; //TODO; Constructor which gets agent's speed
+	float OgMaxSpeed = 0.f;
 	float SlowRadius = 500.f;
 	float TargetRadius = 100.f;
 };

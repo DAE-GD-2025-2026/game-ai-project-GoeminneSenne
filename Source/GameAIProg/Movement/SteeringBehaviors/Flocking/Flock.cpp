@@ -52,8 +52,6 @@ Flock::Flock(
 		}
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Array size: %d"), Agents.Num());
-
 	////////////////
 	///Steering Behaviors
 	
@@ -67,7 +65,7 @@ Flock::Flock(
 	
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.reserve(5);
-	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.3f);
+	WeightedBehaviors.emplace_back(pSeparationBehavior.get(), 0.4f);
 	WeightedBehaviors.emplace_back(pCohesionBehavior.get(), 0.3f);
 	WeightedBehaviors.emplace_back(pAlignmentBehavior.get(), 0.2f);
 	WeightedBehaviors.emplace_back(pWanderBehavior.get(), 0.2f);
@@ -85,19 +83,11 @@ Flock::Flock(
 
 Flock::~Flock()
 {
- // TODO: Cleanup any additional data
 }
 
 void Flock::Tick(float DeltaTime)
 {
- // TODO: update the flock
- // TODO: for every agent:
-  // TODO: register the neighbors for this agent (-> fill the memory pool with the neighbors for the currently evaluated agent)
-  // TODO: update the agent (-> the steeringbehaviors use the neighbors in the memory pool)
-  // TODO: trim the agent to the world
-	
 	SetTarget_Evade();
-	
 	
 	for (int idx{0}; idx < FlockSize; ++idx)
 	{
@@ -115,7 +105,6 @@ void Flock::Tick(float DeltaTime)
 
 void Flock::RenderDebug()
 {
- // TODO: Render all the agents in the flock
 	if (DebugRenderNeighborhood)
 	{
 		RenderNeighborhood();
@@ -176,7 +165,7 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Text("Flocking");
 		ImGui::Spacing();
 
-  // TODO: implement ImGUI checkboxes for debug rendering here
+		///DEBUG CHECKBOXES
 		ImGui::Checkbox("Use Space Partitioning", &UseSpacePartitioning);
 		
 		ImGui::Spacing();
@@ -205,7 +194,7 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		}
 
 		
-		//Behavior Weights
+		///BEHAVIOR WEIGHT SLIDERS
 		ImGui::Spacing();
 		ImGui::Separator();
 		ImGui::Spacing();
@@ -251,7 +240,6 @@ void Flock::RenderNeighborhood()
 	//Neighborhood Radius
 	DrawDebugCircle(pWorld, FVector(Agents[0]->GetPosition(),0.f), NeighborhoodRadius, 16, FColor::Blue, false, -1, 0, 0, 
 	FVector(0,1,0), FVector(1,0,0));
-		//TODO: draw Circle with matrix
 	
 	//Bounding box
 	DrawDebugBox(pWorld, FVector(Agents[0]->GetPosition(), 0.f), 
