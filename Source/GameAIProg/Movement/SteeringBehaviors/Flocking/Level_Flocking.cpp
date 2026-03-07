@@ -22,6 +22,7 @@ void ALevel_Flocking::BeginPlay()
 	
 	//Create Agent to Evade
 	pWander = std::make_unique<Wander>();
+	pWander->SetMaxAngleChange(15);
 	
 	pAgentToEvade = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass,
 		{0, 0, 90}, FRotator::ZeroRotator);

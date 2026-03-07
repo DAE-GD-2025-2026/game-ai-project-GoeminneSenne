@@ -81,6 +81,8 @@ class Evade : public Pursuit
 public:
 	virtual SteeringOutput CalculateSteering(float deltaT, ASteeringAgent & Agent) override;
 	
+	void SetEvadeRadius(float evadeRadius){EvadeRadius = evadeRadius;}
+	float GetEvadeRadius() const { return EvadeRadius; }
 protected:
 	float EvadeRadius = 600.f;
 };
@@ -92,10 +94,11 @@ class Wander : public Seek
 public:
 	virtual SteeringOutput CalculateSteering(float DeltaT, ASteeringAgent & Agent) override;
 	
+	void SetMaxAngleChange(float maxAngleChangeDeg) {m_MaxAngleChange = FMath::DegreesToRadians(maxAngleChangeDeg);}
 	
 protected:
 	float m_OffsetDistance = 300.f; //Offset (Agent direction)
 	float m_Radius = 200.f; //WanderRadius
-	float m_MaxAngleChange = FMath::DegreesToRadians(10); //Max WanderAngle change per frame
+	float m_MaxAngleChange = FMath::DegreesToRadians(45); //Max WanderAngle change per frame
 	float m_WanderAngle = 0.f; //Internal
 };

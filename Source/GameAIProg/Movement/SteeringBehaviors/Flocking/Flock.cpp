@@ -63,6 +63,7 @@ Flock::Flock(
 	pSeekBehavior = std::make_unique<Seek>();
 	pWanderBehavior = std::make_unique<Wander>();
 	pEvadeBehavior = std::make_unique<Evade>();
+	pEvadeBehavior->SetEvadeRadius(250.f);
 	
 	std::vector<BlendedSteering::WeightedBehavior> WeightedBehaviors;
 	WeightedBehaviors.reserve(5);
@@ -130,6 +131,11 @@ void Flock::RenderDebug()
 	{
 		Agents[idx]->SetDebugRenderingEnabled(DebugRenderSteering);
 	}
+	
+	if (DebugRenderEvadeTarget)
+	{
+		RenderEvadeTarget();
+	}
 }
 
 void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
@@ -182,6 +188,8 @@ void Flock::ImGuiRender(ImVec2 const& WindowPos, ImVec2 const& WindowSize)
 		ImGui::Checkbox("Debug render steering", &DebugRenderSteering);
 		ImGui::Spacing();
 		ImGui::Checkbox("Debug render neighborhood", &DebugRenderNeighborhood);
+		ImGui::Spacing();
+		ImGui::Checkbox("Debug render evade target", &DebugRenderEvadeTarget);
 		
 		if (UseSpacePartitioning)
 		{
@@ -260,6 +268,16 @@ void Flock::RenderNeighborhood()
 	FVector2D AvgPos{GetAverageNeighborPos()};
 	DrawDebugPoint(pWorld, FVector(AvgPos, 20.f), 30.f, FColor::Red);
 	
+}
+
+void Flock::RenderEvadeTarget() const
+{
+	//Agent Position
+	DrawDebugPoint(pWorld, FVector(pAgentToEvade->GetPosition(), 20.f), 30.f, FColor::Yellow);
+	
+	//Draw Evade 
+	DrawDebugCircle(pWorld, FVector(pAgentToEvade->GetPosition(), 0.f), pEvadeBehavior->GetEvadeRadius(), 16, FColor::Yellow, false, -1, 0, 0,
+		FVector(0,1,0), FVector(1,0,0));
 }
 
 const TArray<ASteeringAgent*>& Flock::GetNeighbors() const

@@ -69,8 +69,10 @@ private:
 	// UI and rendering
 	bool DebugRenderSteering{false};
 	bool DebugRenderNeighborhood{false};
+	bool DebugRenderEvadeTarget{true};
 	bool DebugRenderPartitions{false};
 	bool DebugRenderAgentsInPartition{false};
 
 	void RenderNeighborhood();
+	void RenderEvadeTarget() const;
 };
