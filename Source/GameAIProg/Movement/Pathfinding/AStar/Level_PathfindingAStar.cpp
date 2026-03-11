@@ -150,6 +150,9 @@ void ALevel_PathfindingAStar::UpdateAgentPath(std::vector<Node*> const& Path)
 	if (pathPositions.size() > 0)
 	{
 		Agent->SetPosition(pathPositions[0]);
+		
+		//Reset Agent Max Lineair Velocity
+		Agent->SetMaxLinearSpeed(600.f);
 	}
 }
 
