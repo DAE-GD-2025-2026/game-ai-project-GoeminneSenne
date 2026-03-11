@@ -89,7 +89,13 @@ namespace GameAI
 		// TODO Start algorithm loop
 		std::stack<int> nodeStack;
 
+		//Add node to stack
 		nodeStack.push(currentNodeId);
+		
+		auto currentConnections = graphCopy.FindConnectionsTo(currentNodeId);
+		
+		//TODO afwerken
+		
 		
 		std::reverse(Path.begin(), Path.end());
 		return Path;

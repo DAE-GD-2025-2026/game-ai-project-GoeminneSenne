@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include "CoreMinimal.h"
 #include "Algorithms/EulerianPath.h"
+#include "CoreMinimal.h"
 #include "Movement/SteeringBehaviors/PathFollow/PathFollowSteeringBehavior.h"
 #include "Shared/Level_Base.h"
 #include "Shared/Graph/Graph.h"
@@ -27,8 +27,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 protected:
-	UPROPERTY()
-	APlayerController* PlayerController{nullptr};
 	
 	virtual void BeginPlay() override;
 	virtual void BeginDestroy() override;
@@ -41,7 +39,7 @@ private:
 	GameAI::GraphRenderer Renderer{nullptr};
 	GameAI::GraphNodeFactory<GameAI::Node> NodeFactory{};
 	
-	std::unique_ptr<GameAI::EulerianPath> pEulerianPath;
+	std::unique_ptr<GameAI::EulerianPath> pEulerianPath{nullptr};
 	
 	UPROPERTY()
 	UGraphEditorComponent* PlayerGraphEditor{}; // ref
