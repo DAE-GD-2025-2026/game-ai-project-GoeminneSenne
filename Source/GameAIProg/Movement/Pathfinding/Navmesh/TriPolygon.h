@@ -18,7 +18,7 @@ public:
 	
 	struct Triangle
 	{
-		std::array<int, 3> VertexIndices;
+		std::array<int, 3>VertexIndices;
 		
 		FVector GetVertex0(TriPolygon const& Poly) const { return Poly.Vertices[VertexIndices[0]]; }
 		FVector GetVertex1(TriPolygon const& Poly) const { return Poly.Vertices[VertexIndices[1]]; }

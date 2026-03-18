@@ -107,6 +107,7 @@ std::vector<Node*>AStar::FindPath(Node* const pStartNode, Node* const pGoalNode)
 
 float AStar::GetHeuristicCost(Node* const pStartNode, Node* const pEndNode) const
 {
+	//Col & Row gebruiken ipv World position?
 	FVector2D toDestination = pGraph->GetNode(pEndNode->GetId())->GetPosition() - pGraph->GetNode(pStartNode->GetId())->GetPosition();
 	return HeuristicFunction(abs(toDestination.X), abs(toDestination.Y));
 }
