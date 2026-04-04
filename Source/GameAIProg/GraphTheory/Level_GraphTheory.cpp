@@ -41,7 +41,6 @@ void ALevel_GraphTheory::BeginPlay()
 		Player->SetCameraProjection(ECameraProjectionMode::Orthographic);
 	}
 	
-	// TODO Make the graph and a couple connected nodes here...
 	Renderer = GraphRenderer{GetWorld()};
 	
 	auto NodeId1 = Graph.AddNode(std::make_unique<Node>(FVector2D{0.f, 0.f}));
@@ -55,28 +54,17 @@ void ALevel_GraphTheory::BeginPlay()
 	
 	//Create Eulerian Path
 	pEulerianPath = std::make_unique<GameAI::EulerianPath>(&Graph);
-	
-	//TODO : TEMP Testing
-	auto result = pEulerianPath->IsEulerian();
-	
-	if (result == GameAI::Eulerianity::notEulerian)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Graph is not Eulerian"))
-	}
-	else if (result == Eulerianity::semiEulerian)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Graph is semi Eulerian"))
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Graph is Eulerian"))
-
-	}
-	
+		
 	// Spawn the Agent
 	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
 	FVector{0,0,90}, FRotator::ZeroRotator);
 	Agent->SetSteeringBehavior(&PathFollow);
+	
+	auto eulerianity = pEulerianPath->IsEulerian();
+	auto path = pEulerianPath->FindPath(eulerianity);
+	
+	if (path.size() > 0)
+		UpdateAgentPath(path);
 }
 
 void ALevel_GraphTheory::BeginDestroy()
@@ -128,18 +116,31 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 #pragma endregion UI
 	
 	Renderer.RenderGraph(Graph);
+		
+	if (PlayerGraphEditor->HasGraphUpdated())
+	{
+		auto eulerinaty = pEulerianPath->IsEulerian();
+		auto path = pEulerianPath->FindPath(eulerinaty);
 	
-	// TODO Check if the graph has updated
-	// TODO if so, run the EulerianPath algorithm
-	// TODO if a path is found, have the agent follow it
+		if (path.size() > 0)
+		{
+			UpdateAgentPath(path);
+		}
+		
+	}
 }
 
 void ALevel_GraphTheory::UpdateAgentPath(std::vector<Node*> const& Trail)
 {
-	std::vector<FVector2D> path{};
+	//Restore original max speed for Agent in case Arrive made it slower
+	Agent->SetMaxLinearSpeed(600.f);
 	
-	// TODO convert Node vector to positions vector
-
+	std::vector<FVector2D> path{};
+	for (const auto& node : Trail)
+	{
+		path.push_back(node->GetPosition());
+	}
+	
 	PathFollow.SetPath(path);
 	if (path.size() > 0)
 	{

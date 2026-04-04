@@ -66,21 +66,21 @@ namespace GameAI
 		Graph graphCopy = m_pGraph->Clone();
 		std::vector<Node*> Path = {};
 		std::vector<Node*> Nodes = graphCopy.GetActiveNodes();
-		int currentNodeId{ Graphs::InvalidNodeId };
+		int startNodeId{ Graphs::InvalidNodeId };
 		
 		if (eulerianity == Eulerianity::notEulerian)
 			return Path;
 		
 		//Choose Starting Node
 		if (eulerianity == Eulerianity::eulerian)
-			currentNodeId = Nodes.front()->GetId();
+			startNodeId = Nodes.front()->GetId();
 		else if (eulerianity == Eulerianity::semiEulerian)
 		{
 			for (int idx = 0; idx < Nodes.size(); ++idx)
 			{
 				if (HasOddDegree(Nodes[idx]))
 				{
-					currentNodeId = idx;
+					startNodeId = idx;
 					break;
 				}
 			}
@@ -88,16 +88,32 @@ namespace GameAI
 		
 		// TODO Start algorithm loop
 		std::stack<int> nodeStack;
-
+		nodeStack.push(startNodeId);
+		
 		//Add node to stack
-		nodeStack.push(currentNodeId);
+		int currentNodeId{};
+		auto currentConnections = graphCopy.FindConnectionsTo(startNodeId);
 		
-		auto currentConnections = graphCopy.FindConnectionsTo(currentNodeId);
-		
-		//TODO afwerken
-		
-		
+		while (nodeStack.size() >  0)
+		{
+			currentNodeId = nodeStack.top();
+			currentConnections = graphCopy.FindConnectionsFrom(currentNodeId);
+			
+			if (currentConnections.size() > 0)
+			{
+				int nextNodeId = currentConnections.front()->GetToId();
+				graphCopy.RemoveConnection(currentConnections.front());
+				nodeStack.push(nextNodeId);
+			}
+			else
+			{
+				Path.push_back(m_pGraph->GetNode(currentNodeId).get());
+				nodeStack.pop();
+			}
+		}
+				
 		std::reverse(Path.begin(), Path.end());
+				
 		return Path;
 	}
 
