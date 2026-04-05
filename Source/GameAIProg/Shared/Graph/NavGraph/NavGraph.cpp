@@ -51,7 +51,6 @@ void GameAI::NavGraph::CreateNavigationGraph()
 	//1. Go over all the edges of the navigation mesh and create nodes
 	for (const auto& edge : pNavPoly->GetEdges())
 	{
-		//TODO helper functie maken hiervoor 
 		int triangleConnections = 0;
 		
 		for (const auto& triangle : pNavPoly->GetTriangles())

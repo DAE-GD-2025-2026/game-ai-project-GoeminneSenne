@@ -32,7 +32,6 @@ std::vector<Node*> BFS::FindPath(Node* const pStartNode, Node* const pDestinatio
 		
 		if (node == pDestinationNode)
 		{
-			//TODO: Reconstruct path
 			while (node != pStartNode)
 			{
 				path.push_back(node);
@@ -44,8 +43,7 @@ std::vector<Node*> BFS::FindPath(Node* const pStartNode, Node* const pDestinatio
 			return path;
 		}
 
-		//Todo add logic when graph is not bidirectional?
-		//TODO find all neighbors
+
 		auto NeighborConnections = pGraph->FindConnectionsFrom(node->GetId());
 		std::vector<Node*> neighbors;
 		for (auto connection : NeighborConnections)

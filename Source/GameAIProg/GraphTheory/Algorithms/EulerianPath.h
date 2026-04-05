@@ -40,7 +40,6 @@ namespace GameAI
 		if (not IsConnected())
 			return Eulerianity::notEulerian;
 		
-		// TODO Count nodes with odd degree 
 		int NrOfOddDegrees{0};
 		for (auto node : m_pGraph->GetActiveNodes())
 		{
@@ -86,17 +85,15 @@ namespace GameAI
 			}
 		}
 		
-		// TODO Start algorithm loop
 		std::stack<int> nodeStack;
 		nodeStack.push(startNodeId);
 		
 		//Add node to stack
-		int currentNodeId{};
 		auto currentConnections = graphCopy.FindConnectionsTo(startNodeId);
 		
 		while (nodeStack.size() >  0)
 		{
-			currentNodeId = nodeStack.top();
+			int currentNodeId = nodeStack.top();
 			currentConnections = graphCopy.FindConnectionsFrom(currentNodeId);
 			
 			if (currentConnections.size() > 0)
@@ -125,7 +122,6 @@ namespace GameAI
 		//Ask the graph for the connections from that node
 		auto Connections = m_pGraph->FindConnectionsFrom(startIndex);
 		
-		// TODO recursively visit any valid connected nodes that were not visited before
 		for (auto C : Connections)
 		{
 			const int connectedId = C->GetToId();
@@ -134,8 +130,6 @@ namespace GameAI
 				VisitAllNodesDFS(Nodes, visited, connectedId);
 			}
 		}
-		
-		// TODO Tip: use an index-based for-loop to find the correct index
 	}
 
 	inline bool EulerianPath::IsConnected() const
@@ -144,13 +138,11 @@ namespace GameAI
 		if (Nodes.size() == 0)
 			return false;
 
-		//TODO vervangen door GetFirstInvalidNodeIdx
-		const int StartIdx{0};
+		constexpr int StartIdx{0};
 		
 		std::vector<bool> Visited(Nodes.size(), false);
 		VisitAllNodesDFS(Nodes, Visited, StartIdx);
 		
-		// TODO if a node was never visited, this graph is not connected
 		for (auto b : Visited)
 		{
 			if (not b) return false;
