@@ -97,14 +97,15 @@ void ALevel_Navmesh::Tick(float DeltaTime)
 		}
 	}
 	
-	// Todo: Draw the portals travelled through with SSFA
-	if (bDrawPortals)
+	if (bDrawPortals && not DebugDrawPortals.empty())
 	{
-		for (const auto& portal : DebugDrawPortals)
+		for (int PortalIndex{1}; PortalIndex < DebugDrawPortals.size() - 1; ++PortalIndex)
 		{
+			const auto& [P1, P2] = DebugDrawPortals[PortalIndex];
+			
 			DrawDebugLine(GetWorld(),
-				FVector{portal.P1, 5.f},
-				FVector{portal.P2, 5.f},
+				FVector{P1, 5.f},
+				FVector{P2, 5.f},
 				FColor::Emerald, false, -1, 1, 10);
 		}
 	}

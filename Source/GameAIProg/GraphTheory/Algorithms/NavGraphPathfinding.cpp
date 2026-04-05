@@ -80,15 +80,16 @@ std::vector<FVector2D> NavMeshPathfinding::FindPath(const FVector2D& startPos, c
 	for (const auto& node : foundPath)
 	{
 		finalPath.push_back(node->GetPosition());
-	}
+	} 
 	
 	//Debug Visualisation
-	debugNodePositions = finalPath;
+	//debugNodePositions = finalPath;
 	
 	// Extra: Run optimiser on new graph (First check if everything works without SSFA!)
 	debugPortals = SSFA::FindPortals(foundPath, *pNavGraph->GetNavPolygon());
-	// finalPath = SSFA::OptimizePortals(debugPortals, *pNavGraph->GetNavPolygon());
+	finalPath = SSFA::OptimizePortals(debugPortals, *pNavGraph->GetNavPolygon());
 	
+	debugNodePositions = finalPath;
 	
 	return finalPath;
 }
