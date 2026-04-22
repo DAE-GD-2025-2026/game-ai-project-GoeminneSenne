@@ -8,8 +8,8 @@ namespace GameAI::FSM
 	public:
 		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) override
 		{
-			UE_LOG(LogTemp, Warning, TEXT("TestState Called"));
+			
+			UE_LOG(LogTemp, Warning, TEXT("Test"));
 		}
-	private:
 	};
 }

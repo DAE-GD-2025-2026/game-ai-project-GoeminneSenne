@@ -25,4 +25,6 @@ protected:
 private:
 	UPROPERTY()
 	ASteeringAgent* Agent{nullptr}; // ref
+	
+	int test{2};
 };

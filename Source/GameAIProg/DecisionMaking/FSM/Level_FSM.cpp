@@ -36,6 +36,17 @@ void ALevel_FSM::BeginPlay()
 			FSM->SetCurrentState(raw);
 			
 			AIController->RunFiniteStateMachine();
+		
+		
+			//BLACKBOARD
+			auto Blackboard = AIController->GetBlackboardComponent();
+
+			//TODO: eerst keys maken in de blackboard zelf
+			
+			//Blackboard->SetValueAsInt("integer", test);
+			Blackboard->SetValueAsInt("integer", 2);
+			
+			int value = Blackboard->GetValueAsInt("integer");
 		}
 	}
 	
