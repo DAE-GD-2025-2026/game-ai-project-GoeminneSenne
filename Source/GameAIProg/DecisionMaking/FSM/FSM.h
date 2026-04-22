@@ -1,35 +1,47 @@
 ﻿#pragma once
 #include <functional>
 #include <memory>
-#include <vector>
 
 #include "BehaviorTree/BlackboardComponent.h"
 
-namespace GAMEAI::FSM
+namespace GameAI::FSM
 {
 	class State
 	{
+	public:
 		virtual ~State() = default;
+		
+		virtual void Tick(float DeltaTime) = 0;
 	};
 	
-	class Transition
+	class Transition final
 	{
 	public:
+		explicit Transition(State* From, State* To, std::function<bool()> EvalFunc);
+		
+		bool Evaluate() const;
 		
 	private:
-		State* FromState{};
-		State* ToState{};
-		std::function<bool()> EvalFunc{};
+		State* From = nullptr;
+		State* To = nullptr;
+		std::function<bool()> EvalFunc = nullptr;
 	};
 	
-	class FSM
+	class FSM final
 	{
 	public:
-		void SetBlackboard(UBlackboardComponent* Blackboard);
+		~FSM() = default;
+		
+		void SetCurrentState(State* newState);
+		void Tick(float DeltaTime);
+		
+		void SetBlackboard(UBlackboardComponent* pBlackboard);
+		void AddState(std::unique_ptr<State>&& NewState);
+		void AddTransition(State* From, State* To, std::function<bool()> EvalFunc);
 		
 	private:
-		State* CurrentState{};
-		UBlackboardComponent* Blackboard{};
+		State* CurrentState = nullptr;
+		UBlackboardComponent* Blackboard = nullptr;
 		
 		std::vector<std::unique_ptr<State>> States;
 		std::vector<std::unique_ptr<Transition>> Transitions;

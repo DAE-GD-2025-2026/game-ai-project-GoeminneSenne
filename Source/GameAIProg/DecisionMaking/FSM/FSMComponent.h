@@ -5,16 +5,19 @@
 #include <functional>
 #include <memory>
 
+#include "FSM.h"
 #include "CoreMinimal.h"
 #include "BrainComponent.h"
 #include "FSMComponent.generated.h"
 
+/*
 namespace GameAI::FSM
 {
 	class State;
 	class Transition;
 	class FSM; // contains FSM logic
 }
+*/
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class GAMEAIPROG_API UFSMComponent : public UBrainComponent
@@ -34,15 +37,16 @@ public:
 	
 	virtual bool IsRunning() const override; 
 	
+	void SetBlackboard(UBlackboardComponent* Blackboard);
 	void AddState(std::unique_ptr<GameAI::FSM::State>&& NewState);
 	void AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To, std::function<bool()> EvalFunc) const;
 		
-	void SetBlackboard(UBlackboardComponent* Blackboard);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
-	std::unique_ptr<GameAI::FSM::FSM> FSMInstance;	
+	std::unique_ptr<GameAI::FSM::FSM> FSMInstance;
+	
 	bool bIsRunning{false};
 };

@@ -22,7 +22,6 @@ void ALevel_FSM::BeginPlay()
 	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
 	FVector{0,0,90}, FRotator::ZeroRotator);
 	Agent->SetDebugRenderingEnabled(false);
-
 	
 	/* TODO
 	if (AGameAIController* AIController = Cast<AGameAIController>(Agent->GetController()))

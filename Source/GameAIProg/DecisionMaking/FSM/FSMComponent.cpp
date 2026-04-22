@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "FSMComponent.h"
-
+#include "FSM.h"
 
 // Sets default values for this component's properties
 UFSMComponent::UFSMComponent()
@@ -25,10 +24,6 @@ void UFSMComponent::AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* 
 	// TODO
 }
 
-void UFSMComponent::SetBlackboard(UBlackboardComponent* Blackboard)
-{
-}
-
 // Called when the game starts
 void UFSMComponent::BeginPlay()
 {
@@ -41,6 +36,8 @@ void UFSMComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	// TODO
+	
+	FSMInstance->Tick(DeltaTime);
 }
 
 void UFSMComponent::StartLogic()
@@ -58,5 +55,10 @@ void UFSMComponent::StopLogic(const FString& Reason)
 bool UFSMComponent::IsRunning() const
 {
 	return bIsRunning;
+}
+
+void UFSMComponent::SetBlackboard(UBlackboardComponent* Blackboard)
+{
+	FSMInstance->SetBlackboard(Blackboard);
 }
 
