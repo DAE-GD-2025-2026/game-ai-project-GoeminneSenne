@@ -38,6 +38,7 @@ public:
 	virtual bool IsRunning() const override; 
 	
 	void SetBlackboard(UBlackboardComponent* Blackboard);
+	void SetCurrentState(GameAI::FSM::State* NewState);
 	void AddState(std::unique_ptr<GameAI::FSM::State>&& NewState);
 	void AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To, std::function<bool()> EvalFunc) const;
 		

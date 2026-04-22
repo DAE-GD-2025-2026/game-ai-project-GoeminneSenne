@@ -10,18 +10,20 @@ UFSMComponent::UFSMComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// TODO Setup FSM
+	FSMInstance = std::make_unique<GameAI::FSM::FSM>();
 }
 
 
 void UFSMComponent::AddState(std::unique_ptr<GameAI::FSM::State>&& NewState)
 {
 	// TODO
+	FSMInstance->AddState(std::move(NewState));
 }
 
 void UFSMComponent::AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To, std::function<bool()> EvalFunc) const
 {
 	// TODO
+	FSMInstance->AddTransition(From, To, EvalFunc);
 }
 
 // Called when the game starts
@@ -60,5 +62,10 @@ bool UFSMComponent::IsRunning() const
 void UFSMComponent::SetBlackboard(UBlackboardComponent* Blackboard)
 {
 	FSMInstance->SetBlackboard(Blackboard);
+}
+
+void UFSMComponent::SetCurrentState(GameAI::FSM::State* NewState)
+{
+	FSMInstance->SetCurrentState(NewState);
 }
 

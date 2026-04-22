@@ -4,6 +4,7 @@
 #include "Level_FSM.h"
 
 #include "FSMComponent.h"
+#include "States.h"
 #include "DecisionMaking/GameAIController.h"
 
 
@@ -23,16 +24,21 @@ void ALevel_FSM::BeginPlay()
 	FVector{0,0,90}, FRotator::ZeroRotator);
 	Agent->SetDebugRenderingEnabled(false);
 	
-	/* TODO
+
 	if (AGameAIController* AIController = Cast<AGameAIController>(Agent->GetController()))
 	{
 		if (UFSMComponent* FSM = Cast<UFSMComponent>(AIController->GetBrainComponent()))
 		{
-			FSM->AddState(std::make_unique<GameAI::FSM::TestState>());
+			std::unique_ptr<GameAI::FSM::TestState> testState = std::make_unique<GameAI::FSM::TestState>();
+			GameAI::FSM::TestState* raw = testState.get();
+			
+			FSM->AddState(std::move(testState));
+			FSM->SetCurrentState(raw);
+			
 			AIController->RunFiniteStateMachine();
 		}
 	}
-	*/
+	
 }
 
 // Called every frame

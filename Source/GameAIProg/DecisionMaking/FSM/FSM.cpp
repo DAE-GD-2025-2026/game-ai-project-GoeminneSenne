@@ -22,7 +22,7 @@ void GameAI::FSM::FSM::SetCurrentState(State* newState)
 
 void GameAI::FSM::FSM::Tick(float DeltaTime)
 {
-	CurrentState->Tick(DeltaTime);
+	CurrentState->Tick(DeltaTime, Blackboard);
 }
 
 void GameAI::FSM::FSM::SetBlackboard(UBlackboardComponent* pBlackboard)

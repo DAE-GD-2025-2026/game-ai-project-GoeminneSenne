@@ -11,7 +11,7 @@ namespace GameAI::FSM
 	public:
 		virtual ~State() = default;
 		
-		virtual void Tick(float DeltaTime) = 0;
+		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) = 0;
 	};
 	
 	class Transition final
