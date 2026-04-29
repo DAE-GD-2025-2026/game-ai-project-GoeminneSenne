@@ -20,11 +20,22 @@ void ALevel_FSM::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	//Thief Agent & Steering Behavior
+	pSeek = std::make_unique<Seek>();
+	MouseTarget.Position = FVector2D{800, 650};
+	
+	Thief = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass,
+		FVector{800, 650, 90}, FRotator::ZeroRotator);
+	Thief->SetDebugRenderingEnabled(false);
+	Thief->SetSteeringBehavior(pSeek.get());
+	
+	
+	//Patrol Agent
 	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
 	FVector{0,0,90}, FRotator::ZeroRotator);
 	Agent->SetDebugRenderingEnabled(false);
 	
-	//Steering Behaviors
+	// Steering Behaviors
 	std::vector<FVector2D> path{FVector2D(-200,0), FVector2D(200, 0)};
 	pPathFollow = std::make_unique<PathFollow>();
 	pPathFollow->SetPath(path);
@@ -56,5 +67,7 @@ void ALevel_FSM::BeginPlay()
 void ALevel_FSM::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
+	pSeek->SetTarget(MouseTarget);
 }
 
