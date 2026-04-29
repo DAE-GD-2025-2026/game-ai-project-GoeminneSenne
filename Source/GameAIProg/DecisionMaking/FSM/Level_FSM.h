@@ -2,7 +2,10 @@
 
 #pragma once
 
+#include <memory>
+
 #include "CoreMinimal.h"
+#include "Movement/SteeringBehaviors/PathFollow/PathFollowSteeringBehavior.h"
 #include "Shared/Level_Base.h"
 #include "Level_FSM.generated.h"
 
@@ -25,6 +28,6 @@ protected:
 private:
 	UPROPERTY()
 	ASteeringAgent* Agent{nullptr}; // ref
+	std::unique_ptr<PathFollow> pPathFollow{};
 	
-	int test{2};
 };

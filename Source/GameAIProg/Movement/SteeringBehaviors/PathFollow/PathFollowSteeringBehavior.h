@@ -10,6 +10,7 @@ public:
 	PathFollow();
 	virtual ~PathFollow() override;
 	void SetPath(std::vector<FVector2D>& path);
+	void SetRepeating(bool repeat);
 	virtual SteeringOutput CalculateSteering(float DeltaTime, ASteeringAgent & Agent) override;
 
 private:
@@ -18,6 +19,7 @@ private:
 	ISteeringBehavior* pCurrentSteering = nullptr;
 	std::vector<FVector2D> pathVec = {};
 	int currentPathIndex = 0;
+    bool isRepeating{false};
 
 	void GotoNextPathPoint();
 };

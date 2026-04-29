@@ -16,13 +16,11 @@ UFSMComponent::UFSMComponent()
 
 void UFSMComponent::AddState(std::unique_ptr<GameAI::FSM::State>&& NewState)
 {
-	// TODO
 	FSMInstance->AddState(std::move(NewState));
 }
 
 void UFSMComponent::AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To, std::function<bool()> EvalFunc) const
 {
-	// TODO
 	FSMInstance->AddTransition(From, To, EvalFunc);
 }
 

@@ -24,29 +24,29 @@ void ALevel_FSM::BeginPlay()
 	FVector{0,0,90}, FRotator::ZeroRotator);
 	Agent->SetDebugRenderingEnabled(false);
 	
-
+	//Steering Behaviors
+	std::vector<FVector2D> path{FVector2D(-200,0), FVector2D(200, 0)};
+	pPathFollow = std::make_unique<PathFollow>();
+	pPathFollow->SetPath(path);
+	pPathFollow->SetRepeating(true);
+	
+	
 	if (AGameAIController* AIController = Cast<AGameAIController>(Agent->GetController()))
 	{
 		if (UFSMComponent* FSM = Cast<UFSMComponent>(AIController->GetBrainComponent()))
 		{
-			std::unique_ptr<GameAI::FSM::TestState> testState = std::make_unique<GameAI::FSM::TestState>();
-			GameAI::FSM::TestState* raw = testState.get();
+			std::unique_ptr<GameAI::FSM::Patrol> patrol = std::make_unique<GameAI::FSM::Patrol>(pPathFollow.get());
 			
-			FSM->AddState(std::move(testState));
-			FSM->SetCurrentState(raw);
+			FSM->SetCurrentState(patrol.get());
+			FSM->AddState(std::move(patrol));
 			
 			AIController->RunFiniteStateMachine();
-		
-		
+			
 			//BLACKBOARD
 			auto Blackboard = AIController->GetBlackboardComponent();
-
-			//TODO: eerst keys maken in de blackboard zelf
 			
-			//Blackboard->SetValueAsInt("integer", test);
-			Blackboard->SetValueAsInt("integer", 2);
-			
-			int value = Blackboard->GetValueAsInt("integer");
+			Blackboard->SetValueAsString("Test", "Hello");
+			//Blackboard->SetValueAsObject("PathFollowBehavior", pPathFollow.get());
 		}
 	}
 	

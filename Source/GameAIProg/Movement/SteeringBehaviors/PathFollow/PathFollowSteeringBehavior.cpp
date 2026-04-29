@@ -22,6 +22,11 @@ void PathFollow::SetPath(std::vector<FVector2D>& path)
 	GotoNextPathPoint();
 }
 
+void PathFollow::SetRepeating(bool repeat)
+{
+	isRepeating = repeat;
+}
+
 SteeringOutput PathFollow::CalculateSteering(float DeltaTime, ASteeringAgent& Agent)
 {
 	if (currentPathIndex < static_cast<int>(pathVec.size()))
@@ -46,9 +51,13 @@ SteeringOutput PathFollow::CalculateSteering(float DeltaTime, ASteeringAgent& Ag
 void PathFollow::GotoNextPathPoint()
 {
 	++currentPathIndex;
-	if (currentPathIndex >= static_cast<int>(pathVec.size())) return;
+	if (currentPathIndex >= static_cast<int>(pathVec.size()))
+	{
+		if (!isRepeating) return;
+		else currentPathIndex = 0;
+	}
 	
-	if (currentPathIndex == pathVec.size() -1)
+	if (currentPathIndex == pathVec.size() -1 && !isRepeating)
 	{
 		FTargetData PathTarget{pathVec[currentPathIndex]};
 		//We have reached the last node
