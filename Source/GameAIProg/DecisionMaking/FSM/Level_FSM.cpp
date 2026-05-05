@@ -5,6 +5,7 @@
 
 #include "FSMComponent.h"
 #include "States.h"
+#include "BehaviorTree/BlackboardAssetProvider.h"
 #include "DecisionMaking/GameAIController.h"
 
 
@@ -41,23 +42,43 @@ void ALevel_FSM::BeginPlay()
 	pPathFollow->SetPath(path);
 	pPathFollow->SetRepeating(true);
 	
+	pPursuit = std::make_unique<Pursuit>();
+	
+	//std::function<bool()> evalFunc = [&](){return true;};
+	std::function<bool(UBlackboardComponent*)> evalFunc = [&](UBlackboardComponent* blackboard)
+	{
+		FVector2D agentPos{Agent->GetPosition()};
+		FVector2D thiefPos{Thief->GetPosition()};
+		
+		return FVector2D::Distance(agentPos, thiefPos) < 100;
+	};
 	
 	if (AGameAIController* AIController = Cast<AGameAIController>(Agent->GetController()))
 	{
 		if (UFSMComponent* FSM = Cast<UFSMComponent>(AIController->GetBrainComponent()))
 		{
 			std::unique_ptr<GameAI::FSM::Patrol> patrol = std::make_unique<GameAI::FSM::Patrol>(pPathFollow.get());
+			std::unique_ptr<GameAI::FSM::Chase> chase = std::make_unique<GameAI::FSM::Chase>(pPursuit.get());
 			
-			FSM->SetCurrentState(patrol.get());
+			GameAI::FSM::Patrol* patrolRaw = patrol.get();
+			GameAI::FSM::Chase* chaseRaw = chase.get();
+			
+			//STATES
 			FSM->AddState(std::move(patrol));
+			FSM->AddState(std::move(chase));
 			
-			AIController->RunFiniteStateMachine();
+			//TRANSITIONS
+			FSM->AddTransition(patrolRaw, chaseRaw, 
+				evalFunc);
 			
 			//BLACKBOARD
 			auto Blackboard = AIController->GetBlackboardComponent();
+			Blackboard->SetValueAsObject("ChaseTarget", Thief);
 			
-			Blackboard->SetValueAsString("Test", "Hello");
-			//Blackboard->SetValueAsObject("PathFollowBehavior", pPathFollow.get());
+			AIController->RunFiniteStateMachine();
+			
+			//Needs to be called after Run so the Blackboard is initialized.
+			FSM->SetCurrentState(patrolRaw);
 		}
 	}
 	

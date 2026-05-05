@@ -29,7 +29,9 @@ private:
 	UPROPERTY()
 	ASteeringAgent* Agent{nullptr}; // ref
 	std::unique_ptr<PathFollow> pPathFollow{nullptr};
+	std::unique_ptr<Pursuit> pPursuit{nullptr};
 	
+	UPROPERTY()
 	ASteeringAgent* Thief{nullptr};
 	std::unique_ptr<Seek> pSeek{nullptr};
 	

@@ -22,17 +22,45 @@ namespace GameAI::FSM
 	public:
 		Patrol(PathFollow* pPathFollow) : State(), m_pPathFollow(pPathFollow) {} 
 		
-		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) override
+		void OnEnter(UBlackboardComponent* Blackboard) override
 		{
 			auto selfActor = Blackboard->GetValueAsObject("SelfActor");
 			if (ASteeringAgent* SteeringAgent = Cast<ASteeringAgent>(selfActor))
 			{
 				SteeringAgent->SetSteeringBehavior(m_pPathFollow);
-
+			}
+		}
+		
+		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) override {}
+		
+	private:
+		PathFollow* m_pPathFollow{nullptr};
+	};
+	
+	class Chase : public State
+	{
+	public:
+		Chase(Pursuit* pPursuit) : State(), m_pPursuit(pPursuit) {}
+		
+		void OnEnter(UBlackboardComponent* Blackboard) override
+		{
+			auto selfActor = Blackboard->GetValueAsObject("SelfActor");
+			if (ASteeringAgent* SteeringAgent = Cast<ASteeringAgent>(selfActor))
+			{
+				SteeringAgent->SetSteeringBehavior(m_pPursuit);
+			}
+		}
+		
+		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) override
+		{
+ 			auto targetActor = Blackboard->GetValueAsObject("ChaseTarget");
+			if (ASteeringAgent* TargetAgent = Cast<ASteeringAgent>(targetActor))
+			{
+				m_pPursuit->SetTarget(FTargetData{TargetAgent->GetPosition()});
 			}
 		}
 		
 	private:
-		PathFollow* m_pPathFollow;
+		Pursuit* m_pPursuit{nullptr};
 	};
 }

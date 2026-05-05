@@ -19,7 +19,8 @@ void UFSMComponent::AddState(std::unique_ptr<GameAI::FSM::State>&& NewState)
 	FSMInstance->AddState(std::move(NewState));
 }
 
-void UFSMComponent::AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To, std::function<bool()> EvalFunc) const
+void UFSMComponent::AddTransition(GameAI::FSM::State* From, GameAI::FSM::State* To,
+	std::function<bool(UBlackboardComponent*)> EvalFunc) const
 {
 	FSMInstance->AddTransition(From, To, EvalFunc);
 }

@@ -11,20 +11,23 @@ namespace GameAI::FSM
 	public:
 		virtual ~State() = default;
 		
+		virtual void OnEnter(UBlackboardComponent* pBlackboard) {};
 		virtual void Tick(float DeltaTime, UBlackboardComponent* Blackboard) = 0;
 	};
 	
 	class Transition final
 	{
 	public:
-		explicit Transition(State* From, State* To, std::function<bool()> EvalFunc);
+		explicit Transition(State* From, State* To, std::function<bool(UBlackboardComponent*)> EvalFunc);
 		
-		bool Evaluate() const;
+		bool Evaluate(UBlackboardComponent* blackboard) const;
+		State* GetFromState() const;
+		State* GetToState() const;
 		
 	private:
 		State* From = nullptr;
 		State* To = nullptr;
-		std::function<bool()> EvalFunc = nullptr;
+		std::function<bool(UBlackboardComponent*)> EvalFunc = nullptr;
 	};
 	
 	class FSM final
@@ -37,7 +40,7 @@ namespace GameAI::FSM
 		
 		void SetBlackboard(UBlackboardComponent* pBlackboard);
 		void AddState(std::unique_ptr<State>&& NewState);
-		void AddTransition(State* From, State* To, std::function<bool()> EvalFunc);
+		void AddTransition(State* From, State* To, std::function<bool(UBlackboardComponent*)> EvalFunc);
 		
 	private:
 		State* CurrentState = nullptr;
