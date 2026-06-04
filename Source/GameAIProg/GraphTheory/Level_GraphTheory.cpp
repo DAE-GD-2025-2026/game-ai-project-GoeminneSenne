@@ -4,6 +4,7 @@
 #include "Level_GraphTheory.h"
 
 #include "Algorithms/EulerianPath.h"
+#include "Algorithms/PrimMST.h"
 #include "Shared/GameAISpectator.h"
 
 using namespace GameAI;
@@ -45,12 +46,19 @@ void ALevel_GraphTheory::BeginPlay()
 	
 	auto NodeId1 = Graph.AddNode(std::make_unique<Node>(FVector2D{0.f, 0.f}));
 	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
+	auto Conn = std::make_unique<Connection>(NodeId1, NodeId2);
+	Conn->SetWeight(FVector2D::Distance(FVector2D{0.f, 0.f}, FVector2D{100.f, 100.f}));
+	Graph.AddConnection(std::move(Conn));
+	
+	/*
+	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
 	auto NodeId3 = Graph.AddNode(std::make_unique<Node>(FVector2D{50.f, -200.f}));
 	auto NodeId4 = Graph.AddNode(std::make_unique<Node>(FVector2D{250.f, 300.f}));
 	Graph.AddConnection(NodeId1, NodeId2);
 	Graph.AddConnection(NodeId2, NodeId3);
 	Graph.AddConnection(NodeId1, NodeId3);
 	Graph.AddConnection(NodeId2, NodeId4);
+	*/
 	
 	//Create Eulerian Path
 	pEulerianPath = std::make_unique<GameAI::EulerianPath>(&Graph);
@@ -110,6 +118,12 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 		ImGui::Spacing();
 		ImGui::Spacing();
 
+		ImGui::Spacing();
+		if (ImGui::Button("Calculate MST"))
+		{
+			CalculateMST();
+		}
+		
 		//End
 		ImGui::End();
 	}
@@ -146,6 +160,17 @@ void ALevel_GraphTheory::UpdateAgentPath(std::vector<Node*> const& Trail)
 	{
 		Agent->SetPosition(path[0]);
 	}
+}
+
+void ALevel_GraphTheory::CalculateMST()
+{
+	for (const auto& conn : Graph.GetConnections())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Connection from %d to %d"), conn->GetFromId(), conn->GetToId());
+	}
+	
+	PrimMST mst{};
+	mst.CalculateMST(Graph);
 }
 
 
