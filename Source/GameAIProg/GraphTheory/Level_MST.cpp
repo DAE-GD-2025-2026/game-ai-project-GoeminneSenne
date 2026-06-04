@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Level_GraphTheory.h"
+#include "GraphTheory/Level_MST.h"
 
 #include "Algorithms/EulerianPath.h"
 #include "Algorithms/PrimMST.h"
@@ -10,14 +10,14 @@
 using namespace GameAI;
 
 // Sets default values
-ALevel_GraphTheory::ALevel_GraphTheory()
+ALevel_MST::ALevel_MST()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
-void ALevel_GraphTheory::BeginPlay()
+void ALevel_MST::BeginPlay()
 {
 	Super::BeginPlay();
 	
@@ -46,35 +46,28 @@ void ALevel_GraphTheory::BeginPlay()
 	
 	auto NodeId1 = Graph.AddNode(std::make_unique<Node>(FVector2D{0.f, 0.f}));
 	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
+	auto Conn = std::make_unique<Connection>(NodeId1, NodeId2);
+	Conn->SetWeight(FVector2D::Distance(FVector2D{0.f, 0.f}, FVector2D{100.f, 100.f}));
+	Graph.AddConnection(std::move(Conn));
+	
+	/*
+	auto NodeId2 = Graph.AddNode(std::make_unique<Node>(FVector2D{100.f, 100.f}));
 	auto NodeId3 = Graph.AddNode(std::make_unique<Node>(FVector2D{50.f, -200.f}));
 	auto NodeId4 = Graph.AddNode(std::make_unique<Node>(FVector2D{250.f, 300.f}));
 	Graph.AddConnection(NodeId1, NodeId2);
 	Graph.AddConnection(NodeId2, NodeId3);
 	Graph.AddConnection(NodeId1, NodeId3);
 	Graph.AddConnection(NodeId2, NodeId4);
-	
-	
-	//Create Eulerian Path
-	pEulerianPath = std::make_unique<GameAI::EulerianPath>(&Graph);
-		
-	// Spawn the Agent
-	Agent = GetWorld()->SpawnActor<ASteeringAgent>(SteeringAgentClass, 
-	FVector{0,0,90}, FRotator::ZeroRotator);
-	Agent->SetSteeringBehavior(&PathFollow);
-	
-	auto eulerianity = pEulerianPath->IsEulerian();
-	auto path = pEulerianPath->FindPath(eulerianity);
-	
-	if (path.size() > 0)
-		UpdateAgentPath(path);
+	*/
+
 }
 
-void ALevel_GraphTheory::BeginDestroy()
+void ALevel_MST::BeginDestroy()
 {
 	Super::BeginDestroy();
 }
 
-void ALevel_GraphTheory::Tick(float DeltaTime)
+void ALevel_MST::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
@@ -111,6 +104,12 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 		ImGui::Text("Graph Theory");
 		ImGui::Spacing();
 		ImGui::Spacing();
+
+		ImGui::Spacing();
+		if (ImGui::Button("Calculate MST"))
+		{
+			CalculateMST();
+		}
 		
 		//End
 		ImGui::End();
@@ -118,38 +117,17 @@ void ALevel_GraphTheory::Tick(float DeltaTime)
 #pragma endregion UI
 	
 	Renderer.RenderGraph(Graph);
-		
-	if (PlayerGraphEditor->HasGraphUpdated())
-	{
-		auto eulerinaty = pEulerianPath->IsEulerian();
-		auto path = pEulerianPath->FindPath(eulerinaty);
-	
-		if (path.size() > 0)
-		{
-			UpdateAgentPath(path);
-		}
-		
-	}
 }
 
-void ALevel_GraphTheory::UpdateAgentPath(std::vector<Node*> const& Trail)
+
+
+void ALevel_MST::CalculateMST()
 {
-	//Restore original max speed for Agent in case Arrive made it slower
-	Agent->SetMaxLinearSpeed(600.f);
-	
-	std::vector<FVector2D> path{};
-	for (const auto& node : Trail)
+	for (const auto& conn : Graph.GetConnections())
 	{
-		path.push_back(node->GetPosition());
+		UE_LOG(LogTemp, Log, TEXT("Connection from %d to %d"), conn->GetFromId(), conn->GetToId());
 	}
 	
-	PathFollow.SetPath(path);
-	if (path.size() > 0)
-	{
-		Agent->SetPosition(path[0]);
-	}
+	PrimMST mst{};
+	mst.CalculateMST(Graph);
 }
-
-
-
-
