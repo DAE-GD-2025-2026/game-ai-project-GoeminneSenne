@@ -230,7 +230,14 @@ void UGraphEditorComponent::CreateConnection()
 		// Attempt to create a connection between the new node id and the old
 		if (CurrentlyHoveredNodeId != LastTappedNodeId)
 		{
-			EditedGraph->AddConnection(LastTappedNodeId, CurrentlyHoveredNodeId);
+			FVector2D CurrentPos = EditedGraph->GetNode(CurrentlyHoveredNodeId)->GetPosition();
+			FVector2D LastPos = EditedGraph->GetNode(LastTappedNodeId)->GetPosition();
+
+			GameAI::Connection Conn{LastTappedNodeId, CurrentlyHoveredNodeId};
+			Conn.SetWeight(FVector2D::Distance(LastPos, CurrentPos));
+			
+			//EditedGraph->AddConnection(LastTappedNodeId, CurrentlyHoveredNodeId);
+			EditedGraph->AddConnection(std::make_unique<GameAI::Connection>(Conn));
 			bHasGraphUpdated = true;
 		}
 		

@@ -43,14 +43,36 @@ void ALevel_FSM::BeginPlay()
 	pPathFollow->SetRepeating(true);
 	
 	pPursuit = std::make_unique<Pursuit>();
+	pWander = std::make_unique<Wander>();
 	
-	//std::function<bool()> evalFunc = [&](){return true;};
-	std::function<bool(UBlackboardComponent*)> evalFunc = [&](UBlackboardComponent* blackboard)
+	std::function<bool(UBlackboardComponent*)> IsTargetVisible = [&](UBlackboardComponent* blackboard)
 	{
+		constexpr float maxDistance = 300;
+		
 		FVector2D agentPos{Agent->GetPosition()};
 		FVector2D thiefPos{Thief->GetPosition()};
 		
-		return FVector2D::Distance(agentPos, thiefPos) < 100;
+		DrawDebugLine(GetWorld(), FVector(agentPos,10), FVector(thiefPos, 10), FColor::Red);
+		
+		if (FVector2D::Distance(agentPos, thiefPos) < maxDistance) 
+			return true;
+		
+		return false;
+	};
+	
+	std::function<bool(UBlackboardComponent*)> IsTargetNotVisible = [IsTargetVisible](UBlackboardComponent* blackboard)
+	{
+		return !IsTargetVisible(blackboard);
+	};
+
+	std::function<bool(UBlackboardComponent*)> IsSearchingTooLong = [&](UBlackboardComponent* blackboard)
+	{
+		constexpr float maxSearchTime = 10;
+		
+		float searchStart = blackboard->GetValueAsFloat("SearchStart");
+		float currentTime = GetWorld()->GetTimeSeconds();
+		
+		return (currentTime - searchStart) > maxSearchTime;
 	};
 	
 	if (AGameAIController* AIController = Cast<AGameAIController>(Agent->GetController()))
@@ -59,17 +81,24 @@ void ALevel_FSM::BeginPlay()
 		{
 			std::unique_ptr<GameAI::FSM::Patrol> patrol = std::make_unique<GameAI::FSM::Patrol>(pPathFollow.get());
 			std::unique_ptr<GameAI::FSM::Chase> chase = std::make_unique<GameAI::FSM::Chase>(pPursuit.get());
+			auto search = std::make_unique<GameAI::FSM::Search>(pWander.get());
 			
 			GameAI::FSM::Patrol* patrolRaw = patrol.get();
 			GameAI::FSM::Chase* chaseRaw = chase.get();
+			auto searchRaw = search.get();
 			
 			//STATES
 			FSM->AddState(std::move(patrol));
 			FSM->AddState(std::move(chase));
+			FSM->AddState(std::move(search));
 			
 			//TRANSITIONS
 			FSM->AddTransition(patrolRaw, chaseRaw, 
-				evalFunc);
+				IsTargetVisible);
+			FSM->AddTransition(chaseRaw, searchRaw, IsTargetNotVisible);
+			FSM->AddTransition(searchRaw, chaseRaw, IsTargetVisible);
+			FSM->AddTransition(searchRaw, patrolRaw, IsSearchingTooLong);
+			
 			
 			//BLACKBOARD
 			auto Blackboard = AIController->GetBlackboardComponent();

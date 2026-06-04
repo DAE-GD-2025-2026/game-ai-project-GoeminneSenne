@@ -30,6 +30,7 @@ private:
 	ASteeringAgent* Agent{nullptr}; // ref
 	std::unique_ptr<PathFollow> pPathFollow{nullptr};
 	std::unique_ptr<Pursuit> pPursuit{nullptr};
+	std::unique_ptr<Wander> pWander{nullptr};
 	
 	UPROPERTY()
 	ASteeringAgent* Thief{nullptr};

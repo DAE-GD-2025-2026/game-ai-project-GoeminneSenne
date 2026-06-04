@@ -63,4 +63,30 @@ namespace GameAI::FSM
 	private:
 		Pursuit* m_pPursuit{nullptr};
 	};
+	
+	class Search : public State
+	{
+	public:
+		Search(Wander* pWander) : State(), m_pWander(pWander) {}
+		
+		void OnEnter(UBlackboardComponent* Blackboard) override
+		{
+			auto selfActor = Blackboard->GetValueAsObject("SelfActor");
+			if (ASteeringAgent* SteeringAgent = Cast<ASteeringAgent>(selfActor))
+			{
+				SteeringAgent->SetSteeringBehavior(m_pWander);
+				
+				Blackboard->SetValueAsFloat("SearchStart", SteeringAgent->GetWorld()->GetTimeSeconds());
+			}
+			
+		}
+		
+		void Tick(float DeltaTime, UBlackboardComponent* Blackboard) override
+		{
+			
+		}
+		
+	private:
+		Wander* m_pWander{nullptr};
+	};
 }
